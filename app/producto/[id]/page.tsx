@@ -4,13 +4,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star, ChevronLeft, ChevronRight, ArrowLeft, CheckCircle, Truck, Shield, CreditCard } from "lucide-react"
 import { useEffect, useState, use } from "react"
-import { getProductById, getPlanesProducto, calcularCuota, formatearPrecio, getProductsByCategory } from "@/lib/supabase-products"
-import { Product, PlanFinanciacion } from "@/lib/products"
+import { getProductById, formatearPrecio, getProductsByCategory } from "@/lib/supabase-products"
+import { Product } from "@/lib/products"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import GlobalAppBar from "@/components/GlobalAppBar"
 import Footer from "@/components/Footer"
 import ProductCard from "@/components/ProductCard"
 import ProductImageGallery from "@/components/ProductImageGallery"
+import FinancingPlansLarge from "@/components/FinancingPlansLarge"
 
 interface ProductPageProps {
   params: Promise<{
@@ -21,7 +22,6 @@ interface ProductPageProps {
 export default function ProductPage({ params }: ProductPageProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
-  const [planes, setPlanes] = useState<PlanFinanciacion[]>([])
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -41,14 +41,9 @@ export default function ProductPage({ params }: ProductPageProps) {
       const productData = await getProductById(id)
       setProduct(productData)
       
-      // Cargar planes de financiación y productos relacionados
+      // Cargar productos relacionados
       if (productData) {
-        const [planesData, relatedData] = await Promise.all([
-          getPlanesProducto(id),
-          getProductsByCategory(productData.fk_id_categoria || 1)
-        ])
-        
-        setPlanes(planesData)
+        const relatedData = await getProductsByCategory(productData.fk_id_categoria || 1)
         
         // Filtrar productos relacionados (excluir el producto actual y limitar a 3)
         const filteredRelated = relatedData
@@ -155,45 +150,24 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
 
               {/* Precio */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <div className="flex items-baseline gap-4">
-                  <span className="text-5xl font-bold text-violet-600">
+              <div className="bg-white rounded-2xl p-4 shadow-lg">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold text-violet-600">
                     ${formatearPrecio(productPrice)}
                   </span>
-                  <span className="text-lg text-gray-500">ARS</span>
+                  <span className="text-base text-gray-500">ARS</span>
                 </div>
               </div>
 
               {/* Planes de Financiación */}
-              {planes.length > 0 && (
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Planes de Financiación</h3>
-                  <div className="space-y-3">
-                    {planes.map((plan, index) => {
-                      const calculo = calcularCuota(productPrice, plan)
-                      if (!calculo) return null
-
-                      const colores = [
-                        'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
-                        'bg-gradient-to-r from-green-500 to-green-600 text-white',
-                        'bg-gradient-to-r from-purple-500 to-purple-600 text-white',
-                        'bg-gradient-to-r from-orange-500 to-orange-600 text-white'
-                      ]
-
-                      return (
-                        <div
-                          key={plan.id}
-                          className={`p-4 rounded-xl text-center font-bold text-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${
-                            colores[index % colores.length]
-                          }`}
-                        >
-                          {plan.cuotas} CUOTAS MENSUALES x ${formatearPrecio(calculo.cuota_mensual)}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
+              <div className="bg-white rounded-2xl p-4 shadow-lg">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Planes de Financiación</h3>
+                <FinancingPlansLarge 
+                  productoId={id} 
+                  precio={productPrice}
+                  showDebug={false}
+                />
+              </div>
 
               {/* Botón de Acción */}
               <div className="bg-white rounded-2xl p-6 shadow-lg">
