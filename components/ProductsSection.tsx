@@ -5,6 +5,7 @@ import ProductCard from "./ProductCard"
 import FilterBar from "./FilterBar"
 import Pagination from "./Pagination"
 import { useProducts } from "@/hooks/use-products"
+import { debugPriceRangeIssue, debugActiveFilters } from "@/lib/debug-price-range"
 
 const PRODUCTS_PER_PAGE = 3
 
@@ -13,7 +14,6 @@ export default function ProductsSection() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [selectedBrand, setSelectedBrand] = useState<number | null>(null)
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000])
   const [currentPage, setCurrentPage] = useState(1)
   const [animateProducts, setAnimateProducts] = useState(false)
 
@@ -44,21 +44,78 @@ export default function ProductsSection() {
     return () => observer.disconnect()
   }, [])
 
-  // Filtrar productos localmente (búsqueda y rango de precio)
+  // Debug inicial del componente
+  useEffect(() => {
+    console.log('🔍 ProductsSection - Debug inicial')
+    debugPriceRangeIssue()
+    debugActiveFilters(searchTerm, selectedCategory, selectedBrand, [0, 1000000])
+  }, [])
+
+  // Filtrar productos localmente (búsqueda y solo excluir precio = 0)
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    console.log('🔍 ProductsSection - Filtrando productos:', {
+      totalProducts: products.length,
+      searchTerm,
+      selectedCategory,
+      selectedBrand
+    })
+
+    // Contadores para debug
+    let productosExcluidosPorBusqueda = 0
+    let productosExcluidosPorPrecioCero = 0
+
+    const filtered = products.filter((product) => {
       const productName = product.descripcion || product.name || ''
       const productDescription = product.descripcion_detallada || product.description || ''
       const productPrice = product.precio || product.price || 0
 
-      const matchesSearch =
+      // Solo excluir productos con precio = 0
+      const precioValido = productPrice > 0
+      
+      // Búsqueda por texto (solo si hay término de búsqueda)
+      const matchesSearch = !searchTerm || 
         productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         productDescription.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesPrice = productPrice >= priceRange[0] && productPrice <= priceRange[1]
 
-      return matchesSearch && matchesPrice
+      // Contar productos excluidos
+      if (!precioValido) {
+        productosExcluidosPorPrecioCero++
+      } else if (searchTerm && !matchesSearch) {
+        productosExcluidosPorBusqueda++
+      }
+
+      // Debug para productos específicos (solo los primeros 5 para no saturar la consola)
+      if (searchTerm && !matchesSearch && productosExcluidosPorBusqueda <= 5) {
+        console.log('🔍 Producto no coincide con búsqueda:', {
+          id: product.id,
+          name: productName,
+          description: productDescription,
+          searchTerm,
+          matchesSearch
+        })
+      }
+
+      if (!precioValido && productosExcluidosPorPrecioCero <= 5) {
+        console.log('🔍 Producto excluido por precio = 0:', {
+          id: product.id,
+          name: productName,
+          price: productPrice
+        })
+      }
+
+      return precioValido && matchesSearch
     })
-  }, [products, searchTerm, priceRange])
+
+    console.log('🔍 ProductsSection - Resumen de filtrado:', {
+      totalProducts: products.length,
+      totalFiltered: filtered.length,
+      productosExcluidosPorPrecioCero,
+      productosExcluidosPorBusqueda,
+      searchTerm: searchTerm || 'sin búsqueda'
+    })
+
+    return filtered
+  }, [products, searchTerm])
 
   // Calcular paginación
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
@@ -71,7 +128,7 @@ export default function ProductsSection() {
     setAnimateProducts(true)
     const timer = setTimeout(() => setAnimateProducts(false), 100)
     return () => clearTimeout(timer)
-  }, [searchTerm, selectedCategory, selectedBrand, priceRange])
+  }, [searchTerm, selectedCategory, selectedBrand])
 
   const handleCategoryChange = async (categoryId: number | null) => {
     setSelectedCategory(categoryId)
@@ -87,7 +144,6 @@ export default function ProductsSection() {
     setSearchTerm("")
     setSelectedCategory(null)
     setSelectedBrand(null)
-    setPriceRange([0, 1000000])
     setCurrentPage(1)
     clearFilters()
   }
@@ -157,8 +213,6 @@ export default function ProductsSection() {
             setSelectedCategory={handleCategoryChange}
             selectedBrand={selectedBrand}
             setSelectedBrand={handleBrandChange}
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
             onClearFilters={handleClearFilters}
             categories={categories}
             brands={brands}

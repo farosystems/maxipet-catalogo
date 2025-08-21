@@ -11,8 +11,6 @@ interface FilterBarProps {
   setSelectedCategory: (categoryId: number | null) => void
   selectedBrand: number | null
   setSelectedBrand: (brandId: number | null) => void
-  priceRange: [number, number]
-  setPriceRange: (range: [number, number]) => void
   onClearFilters: () => void
   categories?: Categoria[]
   brands?: Marca[]
@@ -25,8 +23,6 @@ export default function FilterBar({
   setSelectedCategory,
   selectedBrand,
   setSelectedBrand,
-  priceRange,
-  setPriceRange,
   onClearFilters,
   categories = [],
   brands = [],
@@ -58,9 +54,7 @@ export default function FilterBar({
   const hasActiveFilters =
     searchTerm ||
     selectedCategory !== null ||
-    selectedBrand !== null ||
-    priceRange[0] > 0 ||
-    priceRange[1] < 1000000
+    selectedBrand !== null
 
   // Obtener nombres de categoría y marca seleccionadas
   const selectedCategoryName = selectedCategory
@@ -238,35 +232,7 @@ export default function FilterBar({
             )}
           </div>
 
-          {/* Filtro por precio mínimo */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">Precio Mínimo</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-              <input
-                type="number"
-                placeholder="0"
-                value={priceRange[0] || ""}
-                onChange={(e) => setPriceRange([Number(e.target.value) || 0, priceRange[1]])}
-                className="w-full pl-8 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-              />
-            </div>
-          </div>
 
-          {/* Filtro por precio máximo */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">Precio Máximo</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-              <input
-                type="number"
-                placeholder="1,000,000"
-                value={priceRange[1] === 1000000 ? "" : priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value) || 1000000])}
-                className="w-full pl-8 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-              />
-            </div>
-          </div>
         </div>
 
         {/* Contador de filtros activos */}
@@ -279,7 +245,6 @@ export default function FilterBar({
                 {searchTerm && <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-600 rounded-md">Búsqueda</span>}
                 {selectedCategory && <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-600 rounded-md">Categoría</span>}
                 {selectedBrand && <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-600 rounded-md">Marca</span>}
-                {(priceRange[0] > 0 || priceRange[1] < 1000000) && <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-600 rounded-md">Precio</span>}
               </span>
             </div>
           </div>

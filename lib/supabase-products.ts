@@ -173,13 +173,12 @@ export async function calcularCuotasProducto(productoId: string, planId: number)
 
 export async function getProducts(): Promise<Product[]> {
   try {
+    // Obtener todos los productos sin JOIN para asegurar que no se pierdan productos
+    // Excluir productos con precio 0
     const { data, error } = await supabase
       .from('productos')
-      .select(`
-        *,
-        categoria:categoria(id, descripcion),
-        marca:marcas(id, descripcion)
-      `)
+      .select('*')
+      .gt('precio', 0)
       .order('destacado', { ascending: false })
       .order('descripcion', { ascending: true })
 
@@ -188,14 +187,47 @@ export async function getProducts(): Promise<Product[]> {
       return []
     }
 
+    console.log('🔍 getProducts - Total productos obtenidos:', data?.length || 0)
+
+    // Obtener categorías y marcas por separado para hacer el mapeo manualmente
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categoria')
+      .select('*')
+
+    const { data: brands, error: brandsError } = await supabase
+      .from('marcas')
+      .select('*')
+
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+    }
+
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError)
+    }
+
+    // Crear mapas para búsqueda rápida
+    const categoriesMap = new Map(categories?.map(cat => [cat.id, cat]) || [])
+    const brandsMap = new Map(brands?.map(brand => [brand.id, brand]) || [])
+
     // Transformar datos para que coincidan con la nueva estructura
-    const transformedData = data?.map(product => ({
-      ...product,
-      fk_id_categoria: product.fk_id_categoria || 1,
-      fk_id_marca: product.fk_id_marca || 1,
-      categoria: product.categoria || { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` },
-      marca: product.marca || { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
-    })) || []
+    const transformedData = data?.map(product => {
+      const categoria = categoriesMap.get(product.fk_id_categoria) || 
+                       { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` }
+      
+      const marca = brandsMap.get(product.fk_id_marca) || 
+                   { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
+
+      return {
+        ...product,
+        fk_id_categoria: product.fk_id_categoria || 1,
+        fk_id_marca: product.fk_id_marca || 1,
+        categoria,
+        marca
+      }
+    }) || []
+
+    console.log('🔍 getProducts - Productos transformados:', transformedData.length)
 
     return transformedData
   } catch (error) {
@@ -208,12 +240,9 @@ export async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const { data, error } = await supabase
       .from('productos')
-      .select(`
-        *,
-        categoria:categoria(id, descripcion),
-        marca:marcas(id, descripcion)
-      `)
+      .select('*')
       .eq('destacado', true)
+      .gt('precio', 0)
       .order('descripcion', { ascending: true })
 
     if (error) {
@@ -221,14 +250,43 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       return []
     }
 
+    // Obtener categorías y marcas por separado
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categoria')
+      .select('*')
+
+    const { data: brands, error: brandsError } = await supabase
+      .from('marcas')
+      .select('*')
+
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+    }
+
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError)
+    }
+
+    // Crear mapas para búsqueda rápida
+    const categoriesMap = new Map(categories?.map(cat => [cat.id, cat]) || [])
+    const brandsMap = new Map(brands?.map(brand => [brand.id, brand]) || [])
+
     // Transformar datos para que coincidan con la nueva estructura
-    const transformedData = data?.map(product => ({
-      ...product,
-      fk_id_categoria: product.fk_id_categoria || 1,
-      fk_id_marca: product.fk_id_marca || 1,
-      categoria: product.categoria || { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` },
-      marca: product.marca || { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
-    })) || []
+    const transformedData = data?.map(product => {
+      const categoria = categoriesMap.get(product.fk_id_categoria) || 
+                       { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` }
+      
+      const marca = brandsMap.get(product.fk_id_marca) || 
+                   { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
+
+      return {
+        ...product,
+        fk_id_categoria: product.fk_id_categoria || 1,
+        fk_id_marca: product.fk_id_marca || 1,
+        categoria,
+        marca
+      }
+    }) || []
 
     return transformedData
   } catch (error) {
@@ -241,12 +299,9 @@ export async function getProductsByCategory(categoryId: number): Promise<Product
   try {
     const { data, error } = await supabase
       .from('productos')
-      .select(`
-        *,
-        categoria:categoria(id, descripcion),
-        marca:marcas(id, descripcion)
-      `)
+      .select('*')
       .eq('fk_id_categoria', categoryId)
+      .gt('precio', 0)
       .order('destacado', { ascending: false })
       .order('descripcion', { ascending: true })
 
@@ -255,14 +310,43 @@ export async function getProductsByCategory(categoryId: number): Promise<Product
       return []
     }
 
+    // Obtener categorías y marcas por separado
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categoria')
+      .select('*')
+
+    const { data: brands, error: brandsError } = await supabase
+      .from('marcas')
+      .select('*')
+
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+    }
+
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError)
+    }
+
+    // Crear mapas para búsqueda rápida
+    const categoriesMap = new Map(categories?.map(cat => [cat.id, cat]) || [])
+    const brandsMap = new Map(brands?.map(brand => [brand.id, brand]) || [])
+
     // Transformar datos
-    const transformedData = data?.map(product => ({
-      ...product,
-      fk_id_categoria: product.fk_id_categoria || 1,
-      fk_id_marca: product.fk_id_marca || 1,
-      categoria: product.categoria || { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` },
-      marca: product.marca || { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
-    })) || []
+    const transformedData = data?.map(product => {
+      const categoria = categoriesMap.get(product.fk_id_categoria) || 
+                       { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` }
+      
+      const marca = brandsMap.get(product.fk_id_marca) || 
+                   { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
+
+      return {
+        ...product,
+        fk_id_categoria: product.fk_id_categoria || 1,
+        fk_id_marca: product.fk_id_marca || 1,
+        categoria,
+        marca
+      }
+    }) || []
 
     return transformedData
   } catch (error) {
@@ -275,12 +359,9 @@ export async function getProductsByBrand(brandId: number): Promise<Product[]> {
   try {
     const { data, error } = await supabase
       .from('productos')
-      .select(`
-        *,
-        categoria:categoria(id, descripcion),
-        marca:marcas(id, descripcion)
-      `)
+      .select('*')
       .eq('fk_id_marca', brandId)
+      .gt('precio', 0)
       .order('destacado', { ascending: false })
       .order('descripcion', { ascending: true })
 
@@ -289,14 +370,43 @@ export async function getProductsByBrand(brandId: number): Promise<Product[]> {
       return []
     }
 
+    // Obtener categorías y marcas por separado
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categoria')
+      .select('*')
+
+    const { data: brands, error: brandsError } = await supabase
+      .from('marcas')
+      .select('*')
+
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+    }
+
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError)
+    }
+
+    // Crear mapas para búsqueda rápida
+    const categoriesMap = new Map(categories?.map(cat => [cat.id, cat]) || [])
+    const brandsMap = new Map(brands?.map(brand => [brand.id, brand]) || [])
+
     // Transformar datos
-    const transformedData = data?.map(product => ({
-      ...product,
-      fk_id_categoria: product.fk_id_categoria || 1,
-      fk_id_marca: product.fk_id_marca || 1,
-      categoria: product.categoria || { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` },
-      marca: product.marca || { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
-    })) || []
+    const transformedData = data?.map(product => {
+      const categoria = categoriesMap.get(product.fk_id_categoria) || 
+                       { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` }
+      
+      const marca = brandsMap.get(product.fk_id_marca) || 
+                   { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
+
+      return {
+        ...product,
+        fk_id_categoria: product.fk_id_categoria || 1,
+        fk_id_marca: product.fk_id_marca || 1,
+        categoria,
+        marca
+      }
+    }) || []
 
     return transformedData
   } catch (error) {
@@ -309,11 +419,7 @@ export async function getProductById(id: string): Promise<Product | null> {
   try {
     const { data, error } = await supabase
       .from('productos')
-      .select(`
-        *,
-        categoria:categoria(id, descripcion),
-        marca:marcas(id, descripcion)
-      `)
+      .select('*')
       .eq('id', id)
       .single()
 
@@ -322,13 +428,40 @@ export async function getProductById(id: string): Promise<Product | null> {
       return null
     }
 
+    // Obtener categorías y marcas por separado
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categoria')
+      .select('*')
+
+    const { data: brands, error: brandsError } = await supabase
+      .from('marcas')
+      .select('*')
+
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+    }
+
+    if (brandsError) {
+      console.error('Error fetching brands:', brandsError)
+    }
+
+    // Crear mapas para búsqueda rápida
+    const categoriesMap = new Map(categories?.map(cat => [cat.id, cat]) || [])
+    const brandsMap = new Map(brands?.map(brand => [brand.id, brand]) || [])
+
     // Transformar datos
+    const categoria = categoriesMap.get(data.fk_id_categoria) || 
+                     { id: data.fk_id_categoria || 1, descripcion: `Categoría ${data.fk_id_categoria || 1}` }
+    
+    const marca = brandsMap.get(data.fk_id_marca) || 
+                 { id: data.fk_id_marca || 1, descripcion: `Marca ${data.fk_id_marca || 1}` }
+
     const transformedData = {
       ...data,
       fk_id_categoria: data.fk_id_categoria || 1,
       fk_id_marca: data.fk_id_marca || 1,
-      categoria: data.categoria || { id: data.fk_id_categoria || 1, descripcion: `Categoría ${data.fk_id_categoria || 1}` },
-      marca: data.marca || { id: data.fk_id_marca || 1, descripcion: `Marca ${data.fk_id_marca || 1}` }
+      categoria,
+      marca
     }
 
     return transformedData

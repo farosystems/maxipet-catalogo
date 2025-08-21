@@ -33,12 +33,25 @@ export function useProducts() {
       const categoriesData = await getCategories()
       const brandsData = await getBrands()
 
-      console.log('useProducts - Datos cargados:', {
+      console.log('🔍 useProducts - Datos cargados:', {
         featured: featuredData.length,
         products: productsData.length,
         categories: categoriesData.length,
         brands: brandsData.length
       })
+
+      // Debug detallado de productos
+      console.log('🔍 useProducts - Primeros 5 productos:', productsData.slice(0, 5).map(p => ({
+        id: p.id,
+        descripcion: p.descripcion,
+        precio: p.precio,
+        categoria: p.categoria?.descripcion,
+        marca: p.marca?.descripcion
+      })))
+
+      // Verificar productos con precio > 0
+      const productosConPrecio = productsData.filter(p => (p.precio || 0) > 0)
+      console.log('🔍 useProducts - Productos con precio > 0:', productosConPrecio.length)
 
       setProducts(productsData)
       setFeaturedProducts(featuredData)
