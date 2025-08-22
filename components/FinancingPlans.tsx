@@ -23,8 +23,8 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
           getPlanesProducto(productoId),
           getTipoPlanesProducto(productoId)
         ])
-        console.log('Planes cargados para producto', productoId, ':', planesData)
-        console.log('Tipo de planes para producto', productoId, ':', tipoData)
+        //console.log('Planes cargados para producto', productoId, ':', planesData)
+        //console.log('Tipo de planes para producto', productoId, ':', tipoData)
         
         setPlanes(planesData)
         setTipoPlanes(tipoData)

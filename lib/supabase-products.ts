@@ -98,7 +98,7 @@ export async function getPlanesFinanciacion(): Promise<PlanFinanciacion[]> {
 // Obtener planes disponibles para un producto específico con lógica simplificada
 export async function getPlanesProducto(productoId: string): Promise<PlanFinanciacion[]> {
   try {
-    console.log('🔍 getPlanesProducto: Buscando planes para producto ID:', productoId)
+    //console.log('🔍 getPlanesProducto: Buscando planes para producto ID:', productoId)
     
     // 1. PRIORIDAD ALTA: Buscar planes especiales (productos_planes)
     try {
@@ -107,13 +107,13 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
         .select('fk_id_plan')
         .eq('fk_id_producto', parseInt(productoId))
 
-      console.log('🔍 getPlanesProducto: Planes especiales encontrados:', planesEspeciales?.length || 0)
-      console.log('🔍 getPlanesProducto: Error en consulta planes especiales:', errorEspeciales)
+      //console.log('🔍 getPlanesProducto: Planes especiales encontrados:', planesEspeciales?.length || 0)
+      //console.log('🔍 getPlanesProducto: Error en consulta planes especiales:', errorEspeciales)
       
       if (planesEspeciales && planesEspeciales.length > 0) {
         // Obtener los planes de financiación por separado
         const planIds = planesEspeciales.map(p => p.fk_id_plan)
-        console.log('🔍 getPlanesProducto: IDs de planes especiales encontrados:', planIds)
+        //console.log('🔍 getPlanesProducto: IDs de planes especiales encontrados:', planIds)
         
         const { data: planesData, error: planesError } = await supabase
           .from('planes_financiacion')
@@ -122,8 +122,8 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
           .eq('activo', true)
         
         if (planesData && planesData.length > 0) {
-          console.log('🔍 getPlanesProducto: Detalle planes especiales:', planesData.map(p => p.cuotas))
-          console.log('✅ getPlanesProducto: Usando planes especiales:', planesData.length, planesData.map(p => p.cuotas))
+          //console.log('🔍 getPlanesProducto: Detalle planes especiales:', planesData.map(p => p.cuotas))
+          //console.log('✅ getPlanesProducto: Usando planes especiales:', planesData.length, planesData.map(p => p.cuotas))
           return planesData
         }
       }
@@ -132,7 +132,7 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
     }
 
     // 2. PRIORIDAD BAJA: Si no hay planes especiales, usar planes por defecto
-    console.log('🔍 getPlanesProducto: No hay planes especiales, buscando planes por defecto...')
+    //console.log('🔍 getPlanesProducto: No hay planes especiales, buscando planes por defecto...')
     
     try {
       const { data: planesDefault, error: errorDefault } = await supabase
@@ -140,13 +140,13 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
         .select('fk_id_plan')
         .eq('fk_id_producto', parseInt(productoId))
 
-      console.log('🔍 getPlanesProducto: Planes por defecto encontrados:', planesDefault?.length || 0)
-      console.log('🔍 getPlanesProducto: Error en consulta planes por defecto:', errorDefault)
+      //console.log('🔍 getPlanesProducto: Planes por defecto encontrados:', planesDefault?.length || 0)
+      //console.log('🔍 getPlanesProducto: Error en consulta planes por defecto:', errorDefault)
       
       if (planesDefault && planesDefault.length > 0) {
         // Obtener los planes de financiación por separado
         const planIds = planesDefault.map(p => p.fk_id_plan)
-        console.log('🔍 getPlanesProducto: IDs de planes encontrados:', planIds)
+        //console.log('🔍 getPlanesProducto: IDs de planes encontrados:', planIds)
         
         const { data: planesData, error: planesError } = await supabase
           .from('planes_financiacion')
@@ -155,8 +155,8 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
           .eq('activo', true)
         
         if (planesData && planesData.length > 0) {
-          console.log('🔍 getPlanesProducto: Detalle planes por defecto:', planesData.map(p => p.cuotas))
-          console.log('✅ getPlanesProducto: Usando planes por defecto:', planesData.length, planesData.map(p => p.cuotas))
+          //console.log('🔍 getPlanesProducto: Detalle planes por defecto:', planesData.map(p => p.cuotas))
+          //console.log('✅ getPlanesProducto: Usando planes por defecto:', planesData.length, planesData.map(p => p.cuotas))
           return planesData
         }
       }
@@ -165,8 +165,8 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
     }
 
     // 3. FALLBACK: Si no hay planes especiales ni por defecto, no mostrar ningún plan
-    console.log('🔍 getPlanesProducto: No hay planes específicos ni por defecto para este producto')
-    console.log('✅ getPlanesProducto: No se mostrarán planes de financiación')
+    //console.log('🔍 getPlanesProducto: No hay planes específicos ni por defecto para este producto')
+    //console.log('✅ getPlanesProducto: No se mostrarán planes de financiación')
     return []
   } catch (error) {
     console.error('❌ getPlanesProducto: Error general:', error)
@@ -213,7 +213,7 @@ export async function getProducts(): Promise<Product[]> {
       return []
     }
 
-    console.log('🔍 getProducts - Total productos obtenidos:', data?.length || 0)
+    //console.log('🔍 getProducts - Total productos obtenidos:', data?.length || 0)
 
     // Obtener categorías y marcas por separado para hacer el mapeo manualmente
     const { data: categories, error: categoriesError } = await supabase
@@ -253,7 +253,7 @@ export async function getProducts(): Promise<Product[]> {
       }
     }) || []
 
-    console.log('🔍 getProducts - Productos transformados:', transformedData.length)
+    //console.log('🔍 getProducts - Productos transformados:', transformedData.length)
 
     return transformedData
   } catch (error) {
@@ -499,20 +499,20 @@ export async function getProductById(id: string): Promise<Product | null> {
 
 export async function getCategories(): Promise<Categoria[]> {
   try {
-    console.log('🔍 getCategories: Intentando obtener categorías...')
+    //console.log('🔍 getCategories: Intentando obtener categorías...')
     const { data, error } = await supabase
       .from('categoria')
       .select('*')
       .order('descripcion', { ascending: true })
 
-    console.log('🔍 getCategories: Respuesta de Supabase:', { data, error })
+    //console.log('🔍 getCategories: Respuesta de Supabase:', { data, error })
 
     if (error) {
       console.error('❌ Error fetching categories:', error)
       return []
     }
 
-    console.log('✅ getCategories: Datos obtenidos:', data)
+    //console.log('✅ getCategories: Datos obtenidos:', data)
     return data || []
   } catch (error) {
     console.error('❌ Error fetching categories:', error)
@@ -522,20 +522,20 @@ export async function getCategories(): Promise<Categoria[]> {
 
 export async function getBrands(): Promise<Marca[]> {
   try {
-    console.log('🔍 getBrands: Intentando obtener marcas...')
+    //console.log('🔍 getBrands: Intentando obtener marcas...')
     const { data, error } = await supabase
       .from('marcas')
       .select('*')
       .order('descripcion', { ascending: true })
 
-    console.log('🔍 getBrands: Respuesta de Supabase:', { data, error })
+    //console.log('🔍 getBrands: Respuesta de Supabase:', { data, error })
 
     if (error) {
       console.error('❌ Error fetching brands:', error)
       return []
     }
 
-    console.log('✅ getBrands: Datos obtenidos:', data)
+    //console.log('✅ getBrands: Datos obtenidos:', data)
     return data || []
   } catch (error) {
     console.error('❌ Error fetching brands:', error)
@@ -573,7 +573,7 @@ export async function getTipoPlanesProducto(productoId: string): Promise<'especi
         return 'default'
       }
     } catch (error) {
-      console.log('⚠️ getTipoPlanesProducto: Error al verificar planes por defecto (tabla puede no existir):', error)
+      ('⚠️ getTipoPlanesProducto: Error al verificar planes por defecto (tabla puede no existir):', error)
     }
 
     // 3. Si no hay planes especiales ni por defecto, no hay planes para este producto

@@ -5,23 +5,23 @@ export function debugPriceRangeIssue() {
   
   // Simular el priceRange por defecto
   const defaultPriceRange: [number, number] = [0, 1000000]
-  console.log('🔍 PriceRange por defecto:', defaultPriceRange)
-  console.log('🔍 PriceRange[0] > 0:', defaultPriceRange[0] > 0)
-  console.log('🔍 PriceRange[1] < 1000000:', defaultPriceRange[1] < 1000000)
+  //console.log('🔍 PriceRange por defecto:', defaultPriceRange)
+  //console.log('🔍 PriceRange[0] > 0:', defaultPriceRange[0] > 0)
+  //console.log('🔍 PriceRange[1] < 1000000:', defaultPriceRange[1] < 1000000)
   
   // Verificar si hay algún problema con el tipo de datos
-  console.log('🔍 Tipo de priceRange[0]:', typeof defaultPriceRange[0])
-  console.log('🔍 Tipo de priceRange[1]:', typeof defaultPriceRange[1])
+  //console.log('🔍 Tipo de priceRange[0]:', typeof defaultPriceRange[0])
+  //console.log('🔍 Tipo de priceRange[1]:', typeof defaultPriceRange[1])
   
   // Verificar si hay algún problema con la comparación
-  console.log('🔍 0 === 0:', 0 === 0)
-  console.log('🔍 0 > 0:', 0 > 0)
-  console.log('🔍 0 >= 0:', 0 >= 0)
+  //console.log('🔍 0 === 0:', 0 === 0)
+  //console.log('🔍 0 > 0:', 0 > 0)
+  //console.log('🔍 0 >= 0:', 0 >= 0)
   
   // Verificar si hay algún problema con el valor 1000000
-  console.log('🔍 1000000 === 1000000:', 1000000 === 1000000)
-  console.log('🔍 1000000 < 1000000:', 1000000 < 1000000)
-  console.log('🔍 1000000 <= 1000000:', 1000000 <= 1000000)
+  //console.log('🔍 1000000 === 1000000:', 1000000 === 1000000)
+  //console.log('🔍 1000000 < 1000000:', 1000000 < 1000000)
+  //console.log('🔍 1000000 <= 1000000:', 1000000 <= 1000000)
   
   return {
     defaultPriceRange,
@@ -34,7 +34,7 @@ export function debugPriceRangeIssue() {
 
 // Función para verificar si hay algún filtro activo que no debería estar
 export function debugActiveFilters(searchTerm: string, selectedCategory: number | null, selectedBrand: number | null, priceRange: [number, number]) {
-  console.log('🔍 DEBUG ACTIVE FILTERS')
+  //console.log('🔍 DEBUG ACTIVE FILTERS')
   console.log('🔍 Valores actuales:', {
     searchTerm,
     selectedCategory,

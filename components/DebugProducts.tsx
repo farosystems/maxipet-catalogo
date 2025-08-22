@@ -18,7 +18,7 @@ export default function DebugProducts() {
     try {
       const results = await debugProductByName(searchTerm)
       setDebugResults(results)
-      console.log('🔍 Debug results:', results)
+      //console.log('🔍 Debug results:', results)
     } catch (error) {
       console.error('❌ Error en búsqueda:', error)
     } finally {

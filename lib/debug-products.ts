@@ -15,7 +15,7 @@ export async function debugProductByName(productName: string) {
     if (exactError) {
       console.error('❌ Error en búsqueda exacta:', exactError)
     } else {
-      console.log('🔍 Búsqueda exacta:', exactMatch?.length || 0, 'resultados')
+      //console.log('🔍 Búsqueda exacta:', exactMatch?.length || 0, 'resultados')
       if (exactMatch && exactMatch.length > 0) {
         console.log('✅ Producto encontrado (exacto):', exactMatch[0])
       }
