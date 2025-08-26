@@ -106,6 +106,7 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
         .from('producto_planes')
         .select('fk_id_plan')
         .eq('fk_id_producto', parseInt(productoId))
+        .eq('activo', true)
 
       //console.log('🔍 getPlanesProducto: Planes especiales encontrados:', planesEspeciales?.length || 0)
       //console.log('🔍 getPlanesProducto: Error en consulta planes especiales:', errorEspeciales)
@@ -139,6 +140,7 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
         .from('producto_planes_default')
         .select('fk_id_plan')
         .eq('fk_id_producto', parseInt(productoId))
+        .eq('activo', true)
 
       //console.log('🔍 getPlanesProducto: Planes por defecto encontrados:', planesDefault?.length || 0)
       //console.log('🔍 getPlanesProducto: Error en consulta planes por defecto:', errorDefault)
@@ -557,6 +559,7 @@ export async function getTipoPlanesProducto(productoId: string): Promise<'especi
         .from('producto_planes')
         .select('id')
         .eq('fk_id_producto', parseInt(productoId))
+        .eq('activo', true)
         .limit(1)
 
       if (planesEspeciales && planesEspeciales.length > 0) {
@@ -572,6 +575,7 @@ export async function getTipoPlanesProducto(productoId: string): Promise<'especi
         .from('producto_planes_default')
         .select('id')
         .eq('fk_id_producto', parseInt(productoId))
+        .eq('activo', true)
         .limit(1)
 
       if (planesDefault && planesDefault.length > 0) {
