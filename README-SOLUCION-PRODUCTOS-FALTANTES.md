@@ -100,8 +100,8 @@ Para verificar que la solución funciona:
 
 Se agregaron logs de debug en `getProducts()`:
 ```typescript
-console.log('🔍 getProducts - Total productos obtenidos:', data?.length || 0)
-console.log('🔍 getProducts - Productos transformados:', transformedData.length)
+//console.log('🔍 getProducts - Total productos obtenidos:', data?.length || 0)
+//console.log('🔍 getProducts - Productos transformados:', transformedData.length)
 ```
 
 Estos logs ayudarán a monitorear si se están obteniendo todos los productos esperados.

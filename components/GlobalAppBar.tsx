@@ -1,9 +1,18 @@
 'use client'
 
 import Link from "next/link"
-import { Home, Package, Zap, Sparkles } from "lucide-react"
+import { Menu, ShoppingBag } from "lucide-react"
+import ProductSearch from "./ProductSearch"
+import CategoriesDropdown from "./CategoriesDropdown"
+import ShoppingListModal from "./ShoppingListModal"
+import { useState } from "react"
+import { useShoppingList } from "@/hooks/use-shopping-list"
 
 export default function GlobalAppBar() {
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false)
+  const { itemCount } = useShoppingList()
+  
   const scrollToProducts = () => {
     const productsSection = document.getElementById('productos')
     if (productsSection) {
@@ -36,49 +45,80 @@ export default function GlobalAppBar() {
             </Link>
           </div>
 
-          {/* Navegación central */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <div className="flex items-center bg-violet-800/30 rounded-full p-1 backdrop-blur-sm">
-              <Link 
-                href="/" 
-                className="flex items-center px-4 py-2 text-white hover:text-violet-200 rounded-full transition-all duration-300 hover:bg-violet-800/50 group"
-              >
-                <Home className="mr-2 size-5 group-hover:scale-110 transition-transform duration-300" />
-                <span className="font-semibold text-sm">Inicio</span>
-              </Link>
-              
-              <Link 
-                href="/productos"
-                className="flex items-center px-4 py-2 text-white hover:text-violet-200 rounded-full transition-all duration-300 hover:bg-violet-800/50 group"
-              >
-                <Package className="mr-2 size-5 group-hover:scale-110 transition-transform duration-300" />
-                <span className="font-semibold text-sm">Productos</span>
-              </Link>
-              
-              <Link 
-                href="/#destacados" 
-                className="flex items-center px-4 py-2 text-white hover:text-violet-200 rounded-full transition-all duration-300 hover:bg-violet-800/50 group"
-              >
-                <Zap className="mr-2 size-5 group-hover:scale-110 transition-transform duration-300" />
-                <span className="font-semibold text-sm">Destacados</span>
-              </Link>
-              
-              <div className="flex items-center px-4 py-2 bg-violet-500/50 text-white rounded-full border border-violet-400/30">
-                <Sparkles className="mr-2 size-5" />
-                <span className="font-bold text-sm">CATÁLOGO</span>
-              </div>
-            </div>
-          </nav>
+          {/* Buscador central - mucho más largo */}
+          <div className="flex-1 max-w-4xl mx-4 hidden lg:block">
+            <ProductSearch />
+          </div>
 
           {/* Indicador de estado */}
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 bg-violet-800/30 rounded-full px-3 py-1 backdrop-blur-sm">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-violet-200 text-xs font-medium">En línea</span>
-            </div>
+          <div className="flex items-center space-x-2 bg-violet-800/30 rounded-full px-3 py-1 backdrop-blur-sm">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-violet-200 text-xs font-medium">En línea</span>
           </div>
         </div>
+
+        {/* Navegación secundaria - estilo horizontal simple */}
+        <div className="flex items-center justify-between py-3 border-t border-violet-800/30 px-6">
+          {/* Categorías a la izquierda */}
+          <div 
+            className="relative"
+            onMouseEnter={() => setIsCategoriesOpen(true)}
+            onMouseLeave={() => setIsCategoriesOpen(false)}
+          >
+            <button
+              className="text-white hover:text-violet-200 transition-colors duration-300 font-bold text-lg flex items-center"
+            >
+              <Menu className="mr-2 size-6" />
+              Categorías
+            </button>
+            
+            <CategoriesDropdown 
+              isOpen={isCategoriesOpen}
+              onClose={() => setIsCategoriesOpen(false)}
+            />
+          </div>
+          
+          {/* Navegación centrada */}
+          <nav className="flex items-center space-x-12">
+            <Link 
+              href="/" 
+              className="text-white hover:text-violet-200 transition-colors duration-300 font-bold text-lg underline underline-offset-4"
+            >
+              Inicio
+            </Link>
+            
+            <Link 
+              href="/#destacados" 
+              className="text-white hover:text-violet-200 transition-colors duration-300 font-bold text-lg"
+            >
+              Destacados
+            </Link>
+          </nav>
+          
+          {/* Mi Lista a la derecha */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setIsShoppingListOpen(true)}
+              className="text-white hover:text-violet-200 transition-colors duration-300 font-bold text-lg flex items-center gap-2"
+              title="Mi Lista de Compra"
+            >
+              <ShoppingBag size={20} />
+              Mi Lista ({itemCount})
+            </button>
+          </div>
+        </div>
+
+        {/* Buscador móvil */}
+        <div className="lg:hidden pb-4">
+          <ProductSearch />
+        </div>
       </div>
+      
+      {/* Modal de Mi Lista */}
+      <ShoppingListModal 
+        isOpen={isShoppingListOpen}
+        onClose={() => setIsShoppingListOpen(false)}
+      />
     </div>
   )
 } 

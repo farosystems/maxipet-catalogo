@@ -1,11 +1,11 @@
 import { supabase } from './supabase'
 import { Product, Categoria, Marca, PlanFinanciacion, ProductoPlan } from './products'
 
-// Función para formatear números con 2 decimales
+// Función para formatear números sin decimales
 export function formatearPrecio(precio: number): string {
   return precio.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   })
 }
 
@@ -71,7 +71,12 @@ export function calcularAnticipo(precio: number, plan: PlanFinanciacion) {
     anticipo = (precio * plan.anticipo_minimo) / 100
   }
   
-  return Math.round(anticipo * 100) / 100 // Redondear a 2 decimales
+  // Aplicar redondeo de $50 para arriba
+  if (anticipo >= 50) {
+    return Math.ceil(anticipo / 50) * 50
+  }
+  
+  return Math.round(anticipo * 100) / 100 // Para anticipos menores a $50, mantener redondeo a 2 decimales
 }
 
 // Obtener todos los planes de financiación activos
@@ -489,12 +494,32 @@ export async function getProductById(id: string): Promise<Product | null> {
     const marca = brandsMap.get(data.fk_id_marca) || 
                  { id: data.fk_id_marca || 1, descripcion: `Marca ${data.fk_id_marca || 1}` }
 
+    // Crear array de imágenes con todos los campos de imagen disponibles
+    const imagenes = [
+      data.imagen,
+      data.imagen_2,
+      data.imagen_3,
+      data.imagen_4,
+      data.imagen_5
+    ].filter(img => img && img.trim() !== '') // Filtrar imágenes vacías
+
+    // Debug: Log para verificar las imágenes
+    //console.log('🔍 getProductById - Imágenes individuales:', {
+      //imagen: data.imagen,
+      //imagen_2: data.imagen_2,
+      //imagen_3: data.imagen_3,
+      //imagen_4: data.imagen_4,
+      //imagen_5: data.imagen_5
+    //})
+    //console.log('🔍 getProductById - Array de imágenes filtrado:', imagenes)
+
     const transformedData = {
       ...data,
       fk_id_categoria: data.fk_id_categoria || 1,
       fk_id_marca: data.fk_id_marca || 1,
       categoria,
-      marca
+      marca,
+      imagenes // Agregar el array de imágenes
     }
 
     return transformedData

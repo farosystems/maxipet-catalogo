@@ -19,8 +19,27 @@ export default function WhatsAppButton({ product }: WhatsAppButtonProps) {
   
   // Función para generar el mensaje de WhatsApp
   const generateWhatsAppMessage = (product: Product): string => {
+    // Debug: verificar qué tipo de producto es
+    console.log('🔍 Generando mensaje para producto:', product)
+    console.log('🔍 Tiene descripcion_detallada:', !!product.descripcion_detallada)
+    console.log('🔍 Descripción incluye "Lista de":', product.descripcion?.includes('Lista de'))
+    
+    // Verificar si es un producto virtual de lista (tiene descripcion_detallada)
+    if (product.descripcion_detallada && product.descripcion?.includes('Lista de')) {
+      console.log('🔍 Detectado producto virtual de lista')
+      let message = `Hola! 👋 Me interesa consultar sobre los siguientes productos:\n\n`
+      
+      // Usar la descripción detallada que contiene la lista de productos
+      message += product.descripcion_detallada
+      
+      message += `\n\n¿Podrían brindarme más información sobre estos productos?`
+      
+      console.log('🔍 Mensaje generado:', message)
+      return message
+    }
+    
+    // Mensaje normal para productos individuales
     const productInfo = product.descripcion || product.name || 'este producto'
-    const price = product.precio ? `$${product.precio.toLocaleString('es-AR')}` : ''
     
     let message = `Hola! 👋 Me interesa saber más información sobre: ${productInfo}`
     
@@ -33,11 +52,6 @@ export default function WhatsAppButton({ product }: WhatsAppButtonProps) {
       if (product.marca?.descripcion) {
         message += product.categoria?.descripcion ? ` | Marca: ${product.marca.descripcion}` : `Marca: ${product.marca.descripcion}`
       }
-    }
-    
-    // Agregar precio si está disponible
-    if (price) {
-      message += `\n\nPrecio: ${price}`
     }
     
     message += `\n\n¿Podrían brindarme más detalles sobre este producto?`

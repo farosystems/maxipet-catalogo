@@ -68,7 +68,9 @@ export default function FinancingPlansLarge({ productoId, precio, showDebug = fa
   const colores = ['bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-purple-100 text-purple-800', 'bg-orange-100 text-orange-800']
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="bg-white rounded-lg p-6 shadow-sm">
+      <h3 className="text-xl font-bold text-gray-900 mb-4">Planes de Financiación</h3>
+      
       {/* Información de debug */}
       {showDebug && (
         <div className="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
@@ -76,35 +78,37 @@ export default function FinancingPlansLarge({ productoId, precio, showDebug = fa
         </div>
       )}
       
-      {planes.map((plan, index) => {
-        const calculo = calcularCuota(precio, plan)
-        const anticipo = calcularAnticipo(precio, plan)
-        if (!calculo) return null
+      <div className="space-y-3">
+        {planes.map((plan, index) => {
+          const calculo = calcularCuota(precio, plan)
+          const anticipo = calcularAnticipo(precio, plan)
+          if (!calculo) return null
 
-        return (
-          <div
-            key={plan.id}
-            className={`p-4 rounded-xl text-center font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${
-              colores[index % colores.length]
-            }`}
-          >
-            <div className="mb-2">
-              <div className="text-xl mb-1">
-                {plan.cuotas} CUOTAS MENSUALES
+          return (
+            <div
+              key={plan.id}
+              className={`p-4 rounded-xl text-center font-bold text-lg ${
+                index === 0 ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+              }`}
+            >
+              <div className="mb-2">
+                <div className="text-xl mb-1">
+                  {plan.cuotas} CUOTAS MENSUALES
+                </div>
+                <div className="text-lg space-y-1">
+                  <div>x ${formatearPrecio(calculo.cuota_mensual)} EF</div>
+                  <div>x ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC</div>
+                </div>
               </div>
-              <div className="text-lg space-y-1">
-                <div>x ${formatearPrecio(calculo.cuota_mensual)} EF</div>
-                <div>x ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC</div>
-              </div>
+              {anticipo > 0 && (
+                <div className="text-base font-semibold opacity-90 border-t pt-2 mt-2">
+                  Anticipo: ${formatearPrecio(anticipo)}
+                </div>
+              )}
             </div>
-            {anticipo > 0 && (
-              <div className="text-base font-semibold opacity-90 border-t pt-2 mt-2">
-                Anticipo: ${formatearPrecio(anticipo)}
-              </div>
-            )}
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

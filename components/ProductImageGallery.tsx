@@ -5,7 +5,7 @@ import Image from "next/image"
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"
 
 interface ProductImageGalleryProps {
-  images: string[]
+  images?: string[]
   productName: string
   isFeatured?: boolean
 }
@@ -14,7 +14,12 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Filtrar imágenes que no estén vacías o sean null/undefined
-  const validImages = images.filter(img => img && img.trim() !== '')
+  const validImages = (images || []).filter(img => img && img.trim() !== '')
+  
+  // Debug: Log para verificar las imágenes
+  //console.log('🔍 ProductImageGallery - Imágenes recibidas:', images)
+  //console.log('🔍 ProductImageGallery - Imágenes válidas:', validImages)
+  //console.log('🔍 ProductImageGallery - Índice actual:', currentImageIndex)
 
   if (validImages.length === 0) {
     return (
@@ -43,14 +48,25 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
   }
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % validImages.length)
+    //console.log('🔍 nextImage - Antes:', currentImageIndex, 'Total:', validImages.length)
+    setCurrentImageIndex((prev) => {
+      const next = (prev + 1) % validImages.length
+      //console.log('🔍 nextImage - Después:', next)
+      return next
+    })
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + validImages.length) % validImages.length)
+    //console.log('🔍 prevImage - Antes:', currentImageIndex, 'Total:', validImages.length)
+    setCurrentImageIndex((prev) => {
+      const prevIndex = (prev - 1 + validImages.length) % validImages.length
+      //console.log('🔍 prevImage - Después:', prevIndex)
+      return prevIndex
+    })
   }
 
   const goToImage = (index: number) => {
+    //console.log('🔍 goToImage - Ir a índice:', index)
     setCurrentImageIndex(index)
   }
 
@@ -79,15 +95,17 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
             <>
               <button 
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all duration-300 z-10"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all duration-300 z-10 cursor-pointer"
                 aria-label="Imagen anterior"
+                type="button"
               >
                 <ChevronLeft size={20} className="text-gray-700" />
               </button>
               <button 
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all duration-300 z-10"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all duration-300 z-10 cursor-pointer"
                 aria-label="Imagen siguiente"
+                type="button"
               >
                 <ChevronRight size={20} className="text-gray-700" />
               </button>
@@ -109,12 +127,13 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
               <button
                 key={index}
                 onClick={() => goToImage(index)}
-                className={`w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-md transition-all duration-200 ${
+                className={`w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-md transition-all duration-200 cursor-pointer ${
                   index === currentImageIndex 
                     ? 'border-2 border-violet-500 scale-105' 
                     : 'border border-gray-300 hover:border-violet-300 hover:scale-105'
                 }`}
                 aria-label={`Ver imagen ${index + 1}`}
+                type="button"
               >
                 <Image 
                   src={image} 

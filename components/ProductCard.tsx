@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Product } from "@/lib/products"
 import FinancingPlans from "./FinancingPlans"
+import AddToListButton from "./AddToListButton"
 
 interface ProductCardProps {
   product: Product
@@ -56,13 +57,24 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Planes de Financiación - Versión simplificada */}
         <FinancingPlans productoId={product.id} precio={productPrice} />
 
-        {/* Botón Ver Detalles */}
-        <Link
-          href={`/producto/${product.id}`}
-          className="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-300 block text-center text-sm"
-        >
-          Ver Detalles
-        </Link>
+        {/* Botones de acción */}
+        <div className="mt-3 space-y-2">
+          {/* Botón Ver Detalles */}
+          <Link
+            href={product.categoria && product.categoria.descripcion && 
+                  !product.categoria.descripcion.toLowerCase().includes('categor') &&
+                  product.categoria.descripcion.trim() !== '' ? 
+              `/${productCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/${product.id}` :
+              `/varios/${product.id}`
+            }
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-300 block text-center text-sm"
+          >
+            Ver Detalles
+          </Link>
+          
+          {/* Botón Agregar a Lista */}
+          <AddToListButton product={product} variant="card" />
+        </div>
       </div>
     </div>
   )

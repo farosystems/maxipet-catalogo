@@ -22,15 +22,26 @@ export default function Home() {
             <p className="text-xl text-gray-600 mb-8">
               Explorá nuestro catálogo completo con más de 200 productos
             </p>
-            <Link
-              href="/productos"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-violet-600 to-violet-700 text-white font-semibold rounded-xl hover:from-violet-700 hover:to-violet-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              Ver Catálogo Completo
-              <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/cocinas"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-600 to-violet-700 text-white font-semibold rounded-xl hover:from-violet-700 hover:to-violet-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                Cocinas
+              </Link>
+              <Link
+                href="/tv-audio"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                TV y Audio
+              </Link>
+              <Link
+                href="/electrodomesticos"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                Electrodomésticos
+              </Link>
+            </div>
           </div>
         </section>
       </main>

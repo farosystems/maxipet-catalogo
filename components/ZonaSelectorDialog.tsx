@@ -18,8 +18,20 @@ export default function ZonaSelectorDialog({ isOpen, onClose, product }: ZonaSel
 
   // Función para generar el mensaje de WhatsApp
   const generateWhatsAppMessage = (product: Product): string => {
+    // Verificar si es un producto virtual de lista (tiene descripcion_detallada)
+    if (product.descripcion_detallada && product.descripcion?.includes('Lista de')) {
+      let message = `Hola! 👋 Me interesa consultar sobre los siguientes productos:\n\n`
+      
+      // Usar la descripción detallada que contiene la lista de productos
+      message += product.descripcion_detallada
+      
+      message += `\n\n¿Podrían brindarme más información sobre estos productos?`
+      
+      return message
+    }
+    
+    // Mensaje normal para productos individuales
     const productInfo = product.descripcion || product.name || 'este producto'
-    const price = product.precio ? `$${product.precio.toLocaleString('es-AR')}` : ''
     
     let message = `Hola! 👋 Me interesa saber más información sobre: ${productInfo}`
     
@@ -32,11 +44,6 @@ export default function ZonaSelectorDialog({ isOpen, onClose, product }: ZonaSel
       if (product.marca?.descripcion) {
         message += product.categoria?.descripcion ? ` | Marca: ${product.marca.descripcion}` : `Marca: ${product.marca.descripcion}`
       }
-    }
-    
-    // Agregar precio si está disponible
-    if (price) {
-      message += `\n\nPrecio: ${price}`
     }
     
     message += `\n\n¿Podrían brindarme más detalles sobre este producto?`
