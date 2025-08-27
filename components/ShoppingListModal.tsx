@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { X, Trash2 } from 'lucide-react'
+import { X, Trash2, MessageCircle } from 'lucide-react'
 import { useShoppingList } from '@/hooks/use-shopping-list'
 import { Product } from '@/lib/products'
 import WhatsAppButton from './WhatsAppButton'
