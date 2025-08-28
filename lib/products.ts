@@ -7,6 +7,7 @@ export interface Categoria {
 export interface Marca {
   id: number
   descripcion: string
+  logo?: string
   created_at: string
 }
 

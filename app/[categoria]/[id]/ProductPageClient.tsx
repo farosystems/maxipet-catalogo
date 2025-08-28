@@ -154,6 +154,7 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
               images={product.imagenes || [product.imagen] || []}
               productName={product.descripcion || 'Producto'}
               isFeatured={product.destacado || false}
+              brand={product.marca}
             />
           </div>
 

@@ -17,14 +17,9 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
   if (!isOpen) return null
 
   // Crear un producto virtual que contenga la información de todos los productos de la lista
-  const virtualProduct = {
-    id: 0,
+  const virtualProduct: Product = {
+    id: '0',
     descripcion: `Lista de ${itemCount} producto${itemCount !== 1 ? 's' : ''}`,
-    name: `Lista de ${itemCount} producto${itemCount !== 1 ? 's' : ''}`,
-    categoria: { descripcion: 'Múltiples categorías' },
-    marca: { descripcion: 'Varias marcas' },
-    precio: 0,
-    imagen: '/placeholder.jpg',
     descripcion_detallada: items.map((item, index) => {
       let productLine = `${index + 1}. ${item.descripcion || item.name || 'Producto'}`
       
@@ -37,7 +32,17 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
       }
       
       return productLine
-    }).join('\n\n')
+    }).join('\n\n'),
+    precio: 0,
+    stock: 0,
+    imagen: '/placeholder.jpg',
+    fk_id_categoria: 0,
+    fk_id_marca: 0,
+    destacado: false,
+    // Campos opcionales de compatibilidad
+    name: `Lista de ${itemCount} producto${itemCount !== 1 ? 's' : ''}`,
+    categoria: { id: 0, descripcion: 'Múltiples categorías', created_at: '' },
+    marca: { id: 0, descripcion: 'Varias marcas', created_at: '' }
   }
 
   // Debug: verificar que el producto virtual se crea correctamente

@@ -140,6 +140,7 @@ export default function ProductVariosPageClient({ params }: ProductVariosPageCli
               images={product.imagenes || [product.imagen] || []}
               productName={product.descripcion || 'Producto'}
               isFeatured={product.destacado || false}
+              brand={product.marca}
             />
           </div>
 

@@ -3,14 +3,16 @@
 import { useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"
+import { Marca } from "@/lib/products"
 
 interface ProductImageGalleryProps {
   images?: string[]
   productName: string
   isFeatured?: boolean
+  brand?: Marca
 }
 
-export default function ProductImageGallery({ images, productName, isFeatured = false }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ images, productName, isFeatured = false, brand }: ProductImageGalleryProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Filtrar imágenes que no estén vacías o sean null/undefined y trimear espacios
@@ -36,6 +38,17 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
             
+            {/* Logo de la marca */}
+            {brand?.logo && (
+              <div className="absolute top-4 left-4">
+                <img
+                  src={brand.logo}
+                  alt={`Logo ${brand.descripcion}`}
+                  className="h-20 w-auto max-w-32 object-contain drop-shadow-lg"
+                />
+              </div>
+            )}
+
             {/* Badge Destacado */}
             {isFeatured && (
               <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
@@ -84,6 +97,17 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
           
+          {/* Logo de la marca */}
+          {brand?.logo && (
+            <div className="absolute top-4 left-4">
+              <img
+                src={brand.logo}
+                alt={`Logo ${brand.descripcion}`}
+                className="h-20 w-auto max-w-32 object-contain drop-shadow-lg"
+              />
+            </div>
+          )}
+
           {/* Badge Destacado */}
           {isFeatured && (
             <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
