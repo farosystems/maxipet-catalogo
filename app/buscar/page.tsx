@@ -165,6 +165,23 @@ function BuscarPageContent() {
           </div>
         )}
 
+        {/* Información de búsqueda */}
+        {searchTerm && (
+          <div className="mb-8 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Resultados para: <span className="text-violet-600">"{searchTerm}"</span>
+              </h2>
+              <p className="text-lg text-gray-600">
+                {filteredProducts.length === 0 
+                  ? "No se encontraron productos" 
+                  : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'producto encontrado' : 'productos encontrados'}`
+                }
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Grid de Productos */}
         {searchTerm && (
           <div id="productos-grid" className="mb-12">

@@ -39,7 +39,7 @@ export default function HeroSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-15 md:py-20">
         <div className={`text-center transition-all duration-1000 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
-            Bienvenidos a{" "}
+            Bienvenidos a<br />
             <span className="inline-block min-w-[280px] sm:min-w-[320px] md:min-w-[600px] lg:min-w-[700px]">
               <TypewriterText />
             </span>
