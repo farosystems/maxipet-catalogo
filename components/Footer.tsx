@@ -21,7 +21,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt="MUNDO CUOTAS" 
                 className="h-12 w-auto"
               />
