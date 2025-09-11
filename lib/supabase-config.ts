@@ -51,6 +51,13 @@ export interface ConfiguracionWeb {
   // Tipografías
   font_family_primary: string
   font_family_secondary: string
+
+  // Configuración de productos destacados del home
+  home_display_plan_id: number | null
+  home_display_products_count: number
+  home_display_category_filter: number | null
+  home_display_brand_filter: number | null
+  home_display_featured_only: boolean
 }
 
 export interface Zona {
@@ -219,7 +226,12 @@ export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb 
       secondary_color: '#f8f9fa',
       accent_color: '#ff6b35',
       font_family_primary: 'Inter, sans-serif',
-      font_family_secondary: 'Roboto, sans-serif'
+      font_family_secondary: 'Roboto, sans-serif',
+      home_display_plan_id: null,
+      home_display_products_count: 12,
+      home_display_category_filter: null,
+      home_display_brand_filter: null,
+      home_display_featured_only: false
     }
 
     const { data, error } = await supabase

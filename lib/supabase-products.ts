@@ -763,4 +763,158 @@ export async function getProductosConPlan12Cuotas(): Promise<Product[]> {
     console.error('Error fetching productos con plan 12 cuotas:', error)
     return []
   }
-} 
+}
+
+// Obtener productos dinámicos basados en la configuración web del home
+export async function getProductosHomeDinamicos(): Promise<Product[]> {
+  try {
+    // Primero obtener la configuración
+    const { data: config, error: configError } = await supabase
+      .from('configuracion_web')
+      .select('home_display_plan_id, home_display_products_count, home_display_category_filter, home_display_brand_filter, home_display_featured_only')
+      .limit(1)
+      .single()
+
+    if (configError || !config) {
+      console.error('Error obteniendo configuración web:', configError)
+      // Fallback a productos con plan 12 cuotas
+      return await getProductosConPlan12Cuotas()
+    }
+
+    const { 
+      home_display_plan_id, 
+      home_display_products_count, 
+      home_display_category_filter, 
+      home_display_brand_filter, 
+      home_display_featured_only 
+    } = config
+
+    // Si no hay plan configurado, usar comportamiento por defecto
+    if (!home_display_plan_id) {
+      return await getProductosConPlan12Cuotas()
+    }
+
+    // Buscar productos que tengan asociado el plan configurado
+    const { data: productosConPlan, error: planesError } = await supabase
+      .from('producto_planes_default')
+      .select('fk_id_producto')
+      .eq('fk_id_plan', home_display_plan_id)
+
+    if (planesError) {
+      console.error('Error fetching productos con plan configurado:', planesError)
+      return []
+    }
+
+    const productIds = [...new Set(productosConPlan?.map(item => item.fk_id_producto) || [])]
+
+    if (productIds.length === 0) {
+      return []
+    }
+
+    // Construir query dinámico con filtros
+    let query = supabase
+      .from('productos')
+      .select('*')
+      .in('id', productIds)
+      .gt('precio', 0)
+      .eq('activo', true)
+
+    // Aplicar filtro por categoría si está configurado
+    if (home_display_category_filter) {
+      query = query.eq('fk_id_categoria', home_display_category_filter)
+    }
+
+    // Aplicar filtro por marca si está configurado
+    if (home_display_brand_filter) {
+      query = query.eq('fk_id_marca', home_display_brand_filter)
+    }
+
+    // Aplicar filtro de destacados si está configurado
+    if (home_display_featured_only) {
+      query = query.eq('destacado', true)
+    }
+
+    // Aplicar límite de productos y ordenamiento
+    query = query
+      .order('destacado', { ascending: false })
+      .order('descripcion', { ascending: true })
+      .limit(home_display_products_count)
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error fetching productos dinámicos:', error)
+      return []
+    }
+
+    // Obtener categorías y marcas
+    const { categoriesCache, brandsCache } = await getCachedCategoriesAndBrands()
+
+    // Transformar datos
+    const transformedData = data?.map(product => {
+      const categoria = categoriesCache.get(product.fk_id_categoria) || 
+                       { id: product.fk_id_categoria || 1, descripcion: `Categoría ${product.fk_id_categoria || 1}` }
+      
+      const marca = brandsCache.get(product.fk_id_marca) || 
+                   { id: product.fk_id_marca || 1, descripcion: `Marca ${product.fk_id_marca || 1}` }
+
+      return {
+        ...product,
+        fk_id_categoria: product.fk_id_categoria || 1,
+        fk_id_marca: product.fk_id_marca || 1,
+        categoria,
+        marca
+      }
+    }) || []
+
+    return transformedData
+  } catch (error) {
+    console.error('Error fetching productos dinámicos home:', error)
+    return []
+  }
+}
+
+// Obtener información del plan configurado para el home
+export async function getPlanHomeDinamico(): Promise<PlanFinanciacion | null> {
+  try {
+    const { data: config, error: configError } = await supabase
+      .from('configuracion_web')
+      .select('home_display_plan_id')
+      .limit(1)
+      .single()
+
+    if (configError || !config || !config.home_display_plan_id) {
+      // Fallback al plan de 12 cuotas
+      const { data: planData, error } = await supabase
+        .from('planes_financiacion')
+        .select('*')
+        .eq('id', 3)
+        .eq('activo', true)
+        .single()
+
+      if (error) {
+        console.error('Error fetching plan fallback:', error)
+        return null
+      }
+
+      return planData
+    }
+
+    const { data: planData, error: planError } = await supabase
+      .from('planes_financiacion')
+      .select('*')
+      .eq('id', config.home_display_plan_id)
+      .eq('activo', true)
+      .single()
+
+    if (planError) {
+      console.error('Error fetching plan configurado:', planError)
+      return null
+    }
+
+    return planData
+  } catch (error) {
+    console.error('Error fetching plan dinámico home:', error)
+    return null
+  }
+}

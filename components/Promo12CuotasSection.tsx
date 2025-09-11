@@ -3,29 +3,36 @@
 import { useEffect, useState, useRef } from "react"
 import ProductCard from "./ProductCard"
 import Pagination from "./Pagination"
-import { getProductosConPlan12Cuotas } from "@/lib/supabase-products"
+import { getProductosHomeDinamicos, getPlanHomeDinamico } from "@/lib/supabase-products"
+import { PlanFinanciacion } from "@/lib/products"
 import { Product } from "@/lib/products"
 
 const PROMO_PRODUCTS_PER_PAGE = 3
 
 export default function Promo12CuotasSection() {
   const [promoProducts, setPromoProducts] = useState<Product[]>([])
+  const [planInfo, setPlanInfo] = useState<PlanFinanciacion | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Cargar productos con plan de 12 cuotas
+  // Cargar productos dinámicos basados en configuración
   useEffect(() => {
     const loadPromoProducts = async () => {
       try {
         setLoading(true)
         setError(null)
         
-        const products = await getProductosConPlan12Cuotas()
+        const [products, plan] = await Promise.all([
+          getProductosHomeDinamicos(),
+          getPlanHomeDinamico()
+        ])
+        
         setPromoProducts(products)
+        setPlanInfo(plan)
       } catch (err) {
-        setError('Error al cargar los productos de 12 cuotas')
+        setError('Error al cargar los productos promocionales')
       } finally {
         setLoading(false)
       }
@@ -40,9 +47,9 @@ export default function Promo12CuotasSection() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              Promo 12 Cuotas
+              Productos Promocionales
             </h2>
-            <p className="text-xl text-violet-100">Cargando productos en 12 cuotas...</p>
+            <p className="text-xl text-violet-100">Cargando productos promocionales...</p>
           </div>
         </div>
       </section>
@@ -55,7 +62,7 @@ export default function Promo12CuotasSection() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              Promo 12 Cuotas
+              Productos Promocionales
             </h2>
             <p className="text-xl text-red-300">Error al cargar los productos: {error}</p>
           </div>
@@ -72,12 +79,12 @@ export default function Promo12CuotasSection() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     // Scroll suave a la sección de promo
-    document.getElementById("promo-12-cuotas")?.scrollIntoView({ behavior: "smooth" })
+    document.getElementById("promo-productos")?.scrollIntoView({ behavior: "smooth" })
   }
 
   return (
     <section
-      id="promo-12-cuotas"
+      id="promo-productos"
       className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white relative overflow-hidden"
     >
       {/* Fondo animado */}
@@ -89,10 +96,13 @@ export default function Promo12CuotasSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-            Promo 12 Cuotas
+            {planInfo ? `Promo ${planInfo.cuotas} Cuotas` : 'Productos Promocionales'}
           </h2>
           <p className="text-xl text-violet-100 max-w-2xl mx-auto">
-            Los mejores productos disponibles en 12 cuotas sin interés
+            {planInfo 
+              ? `Los mejores productos disponibles en ${planInfo.cuotas} cuotas`
+              : 'Los mejores productos en promoción'
+            }
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-500 mx-auto mt-4 rounded-full animate-pulse-glow"></div>
         </div>
@@ -101,18 +111,18 @@ export default function Promo12CuotasSection() {
         <div className="mb-8 text-center">
           <p className="text-violet-100">
             <span className="md:hidden">
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos en 12 cuotas
+              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}
             </span>
             <span className="hidden md:inline">
               Mostrando <span className="font-semibold text-white">{displayProducts.length}</span> de{" "}
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos en 12 cuotas
+              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}
             </span>
           </p>
         </div>
 
         {promoProducts.length === 0 ? (
           <div className="text-center">
-            <p className="text-xl text-violet-100">No hay productos disponibles en 12 cuotas</p>
+            <p className="text-xl text-violet-100">No hay productos disponibles {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}</p>
           </div>
         ) : (
           <>
