@@ -58,6 +58,9 @@ export interface ConfiguracionWeb {
   home_display_category_filter: number | null
   home_display_brand_filter: number | null
   home_display_featured_only: boolean
+
+  // Configuración de secciones
+  combos: boolean
 }
 
 export interface Zona {
@@ -231,7 +234,8 @@ export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb 
       home_display_products_count: 12,
       home_display_category_filter: null,
       home_display_brand_filter: null,
-      home_display_featured_only: false
+      home_display_featured_only: false,
+      combos: true
     }
 
     const { data, error } = await supabase
@@ -254,10 +258,20 @@ export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb 
 
 export async function getOrCreateConfiguracionWeb(): Promise<ConfiguracionWeb | null> {
   let config = await getConfiguracionWeb()
-  
+
   if (!config) {
     config = await createDefaultConfiguracionWeb()
   }
-  
+
   return config
+}
+
+export async function getMostrarCombos(): Promise<boolean> {
+  try {
+    const config = await getOrCreateConfiguracionWeb()
+    return config?.combos ?? true
+  } catch (error) {
+    console.error('Error al obtener configuración de combos:', error)
+    return true // Por defecto mostrar combos
+  }
 }

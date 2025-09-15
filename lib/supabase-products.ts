@@ -898,6 +898,131 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
   }
 }
 
+// ========================================
+// FUNCIONES PARA COMBOS
+// ========================================
+
+// Obtener todos los combos activos
+export async function getCombos(): Promise<any[]> {
+  try {
+    const { data, error } = await supabase
+      .from('combos')
+      .select('*')
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching combos:', error)
+      return []
+    }
+
+    return data?.map(combo => ({
+      ...combo,
+      imagenes: [
+        combo.imagen,
+        combo.imagen_2,
+        combo.imagen_3,
+        combo.imagen_4,
+        combo.imagen_5
+      ].filter(img => img && img.trim() !== '')
+    })) || []
+  } catch (error) {
+    console.error('Error fetching combos:', error)
+    return []
+  }
+}
+
+// Obtener combo por ID con sus productos
+export async function getComboById(id: string): Promise<any | null> {
+  try {
+    const { data: combo, error: comboError } = await supabase
+      .from('combos')
+      .select('*')
+      .eq('id', parseInt(id))
+      .eq('activo', true)
+      .single()
+
+    if (comboError || !combo) {
+      console.error('Error fetching combo:', comboError)
+      return null
+    }
+
+    // Obtener productos del combo
+    const { data: comboProductos, error: productosError } = await supabase
+      .from('combo_productos')
+      .select(`
+        *,
+        productos:fk_id_producto (*)
+      `)
+      .eq('fk_id_combo', parseInt(id))
+
+    if (productosError) {
+      console.error('Error fetching combo productos:', productosError)
+    }
+
+    // Procesar productos con categorías y marcas
+    const { categoriesCache, brandsCache } = await getCachedCategoriesAndBrands()
+
+    const productosConRelaciones = comboProductos?.map(cp => {
+      const producto = cp.productos
+      if (!producto) return cp
+
+      const categoria = categoriesCache.get(producto.fk_id_categoria) ||
+                       { id: producto.fk_id_categoria || 1, descripcion: `Categoría ${producto.fk_id_categoria || 1}` }
+
+      const marca = brandsCache.get(producto.fk_id_marca) ||
+                   { id: producto.fk_id_marca || 1, descripcion: `Marca ${producto.fk_id_marca || 1}` }
+
+      return {
+        ...cp,
+        producto: {
+          ...producto,
+          categoria,
+          marca
+        }
+      }
+    }) || []
+
+    return {
+      ...combo,
+      productos: productosConRelaciones,
+      imagenes: [
+        combo.imagen,
+        combo.imagen_2,
+        combo.imagen_3,
+        combo.imagen_4,
+        combo.imagen_5
+      ].filter(img => img && img.trim() !== '')
+    }
+  } catch (error) {
+    console.error('Error fetching combo by id:', error)
+    return null
+  }
+}
+
+// Verificar si un combo está vigente
+export function isComboValid(combo: any): boolean {
+  const now = new Date()
+  const inicio = combo.fecha_vigencia_inicio ? new Date(combo.fecha_vigencia_inicio) : null
+  const fin = combo.fecha_vigencia_fin ? new Date(combo.fecha_vigencia_fin) : null
+
+  if (inicio && now < inicio) return false
+  if (fin && now > fin) return false
+
+  return true
+}
+
+// Obtener combos vigentes para la home
+export async function getCombosVigentes(): Promise<any[]> {
+  try {
+    const combos = await getCombos()
+    return combos.filter(combo => isComboValid(combo))
+  } catch (error) {
+    console.error('Error fetching combos vigentes:', error)
+    return []
+  }
+}
+
 // Obtener información del plan configurado para el home
 export async function getPlanHomeDinamico(): Promise<PlanFinanciacion | null> {
   try {
