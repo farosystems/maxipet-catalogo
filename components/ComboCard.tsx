@@ -5,6 +5,7 @@ import { Heart, Clock } from "lucide-react"
 import { Combo } from "@/lib/products"
 import { useShoppingList } from "@/hooks/use-shopping-list"
 import { isComboValid } from "@/lib/supabase-products"
+import FinancingPlansCombo from "./FinancingPlansCombo"
 
 interface ComboCardProps {
   combo: Combo
@@ -124,6 +125,14 @@ export default function ComboCard({ combo }: ComboCardProps) {
               </p>
             )}
           </div>
+
+          {/* Planes de Financiación - Solo si el combo está vigente */}
+          {isValid && (
+            <FinancingPlansCombo
+              comboId={combo.id.toString()}
+              precio={combo.precio_combo}
+            />
+          )}
 
           {/* Vigencia */}
           {combo.fecha_vigencia_fin && (

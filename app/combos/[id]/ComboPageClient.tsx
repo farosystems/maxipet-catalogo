@@ -9,6 +9,7 @@ import ProductImageGallery from "@/components/ProductImageGallery"
 import FormattedProductDescription from "@/components/FormattedProductDescription"
 import AddToListButton from "@/components/AddToListButton"
 import ComboProductsSection from "@/components/ComboProductsSection"
+import FinancingPlansCombo from "@/components/FinancingPlansCombo"
 import { getComboById, isComboValid, getCombosVigentes } from "@/lib/supabase-products"
 import { Combo } from "@/lib/products"
 import { ArrowLeft, Clock, Package, Tag, Calendar } from "lucide-react"
@@ -187,6 +188,18 @@ export default function ComboPageClient({ params: paramsPromise }: ComboPageClie
                 </p>
               )}
             </div>
+
+            {/* Planes de Financiación */}
+            {isValid && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Opciones de Financiación</h3>
+                <FinancingPlansCombo
+                  comboId={combo.id.toString()}
+                  precio={combo.precio_combo}
+                  showDebug={false}
+                />
+              </div>
+            )}
 
             {/* Vigencia */}
             {combo.fecha_vigencia_fin && (

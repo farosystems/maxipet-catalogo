@@ -134,7 +134,7 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
       const { data: planesEspeciales, error: errorEspeciales } = await supabase
         .from('producto_planes')
         .select('fk_id_plan')
-        .eq('fk_id_producto', parseInt(productoId))
+        .eq('fk_id_producto', parseInt(productoId) || 0)
         .eq('activo', true)
 
       //console.log('🔍 getPlanesProducto: Planes especiales encontrados:', planesEspeciales?.length || 0)
@@ -168,7 +168,7 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
       const { data: planesDefault, error: errorDefault } = await supabase
         .from('producto_planes_default')
         .select('fk_id_plan')
-        .eq('fk_id_producto', parseInt(productoId))
+        .eq('fk_id_producto', parseInt(productoId) || 0)
         .eq('activo', true)
 
       //console.log('🔍 getPlanesProducto: Planes por defecto encontrados:', planesDefault?.length || 0)
@@ -589,7 +589,7 @@ export async function getTipoPlanesProducto(productoId: string): Promise<'especi
       const { data: planesEspeciales } = await supabase
         .from('producto_planes')
         .select('id')
-        .eq('fk_id_producto', parseInt(productoId))
+        .eq('fk_id_producto', parseInt(productoId) || 0)
         .eq('activo', true)
         .limit(1)
 
@@ -605,7 +605,7 @@ export async function getTipoPlanesProducto(productoId: string): Promise<'especi
       const { data: planesDefault } = await supabase
         .from('producto_planes_default')
         .select('id')
-        .eq('fk_id_producto', parseInt(productoId))
+        .eq('fk_id_producto', parseInt(productoId) || 0)
         .eq('activo', true)
         .limit(1)
 
@@ -768,7 +768,29 @@ export async function getProductosConPlan12Cuotas(): Promise<Product[]> {
 // Obtener productos dinámicos basados en la configuración web del home
 export async function getProductosHomeDinamicos(): Promise<Product[]> {
   try {
-    // Primero obtener la configuración
+    // Primero obtener todos los productos que tienen planes en producto_planes_default (sin filtros)
+    const { data: productosConPlanesDefault, error: planesDefaultError } = await supabase
+      .from('producto_planes_default')
+      .select('fk_id_producto')
+      .not('fk_id_producto', 'is', null)
+      .eq('activo', true)
+
+    if (planesDefaultError) {
+      console.error('Error obteniendo productos con planes default:', planesDefaultError)
+      return []
+    }
+
+    // Obtener IDs únicos de productos que tienen planes
+    const productIdsConPlanes = [...new Set(productosConPlanesDefault?.map(item => item.fk_id_producto) || [])]
+
+    console.log('🔍 getProductosHomeDinamicos - Productos con planes en tabla default:', productIdsConPlanes.length)
+
+    if (productIdsConPlanes.length === 0) {
+      console.log('🔍 getProductosHomeDinamicos - No hay productos con planes en producto_planes_default')
+      return []
+    }
+
+    // Obtener la configuración para aplicar filtros adicionales
     const { data: config, error: configError } = await supabase
       .from('configuracion_web')
       .select('home_display_plan_id, home_display_products_count, home_display_category_filter, home_display_brand_filter, home_display_featured_only')
@@ -776,18 +798,16 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
       .single()
 
     if (configError || !config) {
-      console.error('Error obteniendo configuración web:', configError)
-      // Fallback a productos con plan 12 cuotas
-      return await getProductosConPlan12Cuotas()
+      console.log('⚠️ getProductosHomeDinamicos - Error o sin configuración web, usando todos los productos con planes:', configError)
     }
 
     const {
       home_display_plan_id,
-      home_display_products_count,
+      home_display_products_count = 12, // Valor por defecto si no hay configuración
       home_display_category_filter,
       home_display_brand_filter,
       home_display_featured_only
-    } = config
+    } = config || {}
 
     console.log('🔍 getProductosHomeDinamicos - Configuración:', {
       home_display_plan_id,
@@ -797,43 +817,37 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
       home_display_featured_only
     })
 
-    // Si no hay plan configurado, usar comportamiento por defecto
-    if (!home_display_plan_id) {
-      console.log('🔍 getProductosHomeDinamicos - No hay plan configurado, usando fallback')
-      return await getProductosConPlan12Cuotas()
-    }
+    // Si hay un plan específico configurado, filtrar solo los productos con ese plan
+    let productIdsFiltrados = productIdsConPlanes
 
-    // Buscar productos que tengan asociado el plan configurado
-    const { data: productosConPlan, error: planesError } = await supabase
-      .from('producto_planes_default')
-      .select('fk_id_producto')
-      .eq('fk_id_plan', home_display_plan_id)
-      .eq('activo', true)
+    if (home_display_plan_id && home_display_plan_id !== null) {
+      console.log('🔍 getProductosHomeDinamicos - Filtrando por plan específico:', home_display_plan_id)
 
-    if (planesError) {
-      console.error('Error fetching productos con plan configurado:', planesError)
-      return []
-    }
+      const { data: productosConPlanEspecifico, error: planEspecificoError } = await supabase
+        .from('producto_planes_default')
+        .select('fk_id_producto')
+        .eq('fk_id_plan', home_display_plan_id)
+        .not('fk_id_producto', 'is', null)
+        .eq('activo', true)
 
-    const productIds = [...new Set(productosConPlan?.map(item => item.fk_id_producto) || [])]
-
-    console.log('🔍 getProductosHomeDinamicos - IDs de productos con plan', home_display_plan_id, ':', productIds)
-
-    if (productIds.length === 0) {
-      console.log('🔍 getProductosHomeDinamicos - No se encontraron productos con el plan configurado')
-      return []
+      if (planEspecificoError) {
+        console.error('Error filtrando por plan específico:', planEspecificoError)
+      } else {
+        productIdsFiltrados = [...new Set(productosConPlanEspecifico?.map(item => item.fk_id_producto) || [])]
+        console.log('🔍 getProductosHomeDinamicos - Productos filtrados por plan', home_display_plan_id, ':', productIdsFiltrados.length)
+      }
     }
 
     // Construir query dinámico con filtros
     let query = supabase
       .from('productos')
       .select('*')
-      .in('id', productIds)
+      .in('id', productIdsFiltrados)
       .gt('precio', 0)
       .eq('activo', true)
 
     // Aplicar filtro por categoría si está configurado
-    if (home_display_category_filter) {
+    if (home_display_category_filter && home_display_category_filter !== null) {
       console.log('🔍 getProductosHomeDinamicos - Aplicando filtro de categoría:', home_display_category_filter)
       query = query.eq('fk_id_categoria', home_display_category_filter)
     } else {
@@ -841,7 +855,7 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
     }
 
     // Aplicar filtro por marca si está configurado
-    if (home_display_brand_filter) {
+    if (home_display_brand_filter && home_display_brand_filter !== null) {
       console.log('🔍 getProductosHomeDinamicos - Aplicando filtro de marca:', home_display_brand_filter)
       query = query.eq('fk_id_marca', home_display_brand_filter)
     } else {
@@ -902,6 +916,72 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
 // FUNCIONES PARA COMBOS
 // ========================================
 
+// Obtener planes disponibles para un combo específico
+export async function getPlanesCombo(comboId: string): Promise<PlanFinanciacion[]> {
+  try {
+    console.log('🔍 getPlanesCombo: Buscando planes para combo ID:', comboId)
+
+    // Buscar planes en producto_planes_default usando fk_id_combo
+    const { data: planesCombo, error: errorPlanes } = await supabase
+      .from('producto_planes_default')
+      .select('fk_id_plan')
+      .eq('fk_id_combo', parseInt(comboId) || 0)
+      .not('fk_id_plan', 'is', null)
+      .eq('activo', true)
+
+    console.log('🔍 getPlanesCombo: Planes encontrados:', planesCombo?.length || 0)
+    console.log('🔍 getPlanesCombo: Error en consulta planes:', errorPlanes)
+
+    if (planesCombo && planesCombo.length > 0) {
+      // Obtener los planes de financiación por separado
+      const planIds = planesCombo.map(p => p.fk_id_plan)
+      console.log('🔍 getPlanesCombo: IDs de planes encontrados:', planIds)
+
+      const { data: planesData, error: planesError } = await supabase
+        .from('planes_financiacion')
+        .select('*')
+        .in('id', planIds)
+        .eq('activo', true)
+        .order('cuotas', { ascending: true })
+
+      if (planesData && planesData.length > 0) {
+        console.log('🔍 getPlanesCombo: Detalle planes:', planesData.map(p => p.cuotas))
+        console.log('✅ getPlanesCombo: Usando planes del combo:', planesData.length)
+        return planesData
+      }
+    }
+
+    console.log('🔍 getPlanesCombo: No hay planes específicos para este combo')
+    return []
+  } catch (error) {
+    console.error('❌ getPlanesCombo: Error general:', error)
+    return []
+  }
+}
+
+// Calcular cuotas para un combo específico
+export async function calcularCuotasCombo(comboId: string, planId: number) {
+  try {
+    const combo = await getComboById(comboId)
+    const { data: planData, error } = await supabase
+      .from('planes_financiacion')
+      .select('*')
+      .eq('id', planId)
+      .eq('activo', true)
+      .single()
+
+    if (error || !combo || !planData) {
+      console.error('Error calculating combo installments:', error)
+      return null
+    }
+
+    return calcularCuota(combo.precio, planData)
+  } catch (error) {
+    console.error('Error calculating combo installments:', error)
+    return null
+  }
+}
+
 // Obtener todos los combos activos
 export async function getCombos(): Promise<any[]> {
   try {
@@ -938,7 +1018,7 @@ export async function getComboById(id: string): Promise<any | null> {
     const { data: combo, error: comboError } = await supabase
       .from('combos')
       .select('*')
-      .eq('id', parseInt(id))
+      .eq('id', parseInt(id) || 0)
       .eq('activo', true)
       .single()
 
@@ -954,7 +1034,7 @@ export async function getComboById(id: string): Promise<any | null> {
         *,
         productos:fk_id_producto (*)
       `)
-      .eq('fk_id_combo', parseInt(id))
+      .eq('fk_id_combo', parseInt(id) || 0)
 
     if (productosError) {
       console.error('Error fetching combo productos:', productosError)
@@ -1019,6 +1099,97 @@ export async function getCombosVigentes(): Promise<any[]> {
     return combos.filter(combo => isComboValid(combo))
   } catch (error) {
     console.error('Error fetching combos vigentes:', error)
+    return []
+  }
+}
+
+// Obtener combos por categoría
+export async function getCombosByCategory(categoryId: number): Promise<any[]> {
+  try {
+    console.log('🔍 getCombosByCategory - Buscando combos para categoría:', categoryId)
+
+    const { data, error } = await supabase
+      .from('combos')
+      .select('*')
+      .eq('fk_id_categoria', categoryId)
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching combos by category:', error)
+      return []
+    }
+
+    console.log('🔍 getCombosByCategory - Combos encontrados:', data?.length || 0)
+
+    const combosWithImages = data?.map(combo => ({
+      ...combo,
+      imagenes: [
+        combo.imagen,
+        combo.imagen_2,
+        combo.imagen_3,
+        combo.imagen_4,
+        combo.imagen_5
+      ].filter(img => img && img.trim() !== '')
+    })) || []
+
+    // Filtrar solo combos vigentes
+    return combosWithImages.filter(combo => isComboValid(combo))
+  } catch (error) {
+    console.error('Error fetching combos by category:', error)
+    return []
+  }
+}
+
+// Buscar combos por término de búsqueda
+export async function searchCombos(searchTerm: string): Promise<any[]> {
+  try {
+    if (!searchTerm.trim()) return []
+
+    console.log('🔍 searchCombos - Buscando combos con término:', searchTerm)
+
+    const { data, error } = await supabase
+      .from('combos')
+      .select('*')
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error searching combos:', error)
+      return []
+    }
+
+    console.log('🔍 searchCombos - Combos totales obtenidos:', data?.length || 0)
+
+    const combosWithImages = data?.map(combo => ({
+      ...combo,
+      imagenes: [
+        combo.imagen,
+        combo.imagen_2,
+        combo.imagen_3,
+        combo.imagen_4,
+        combo.imagen_5
+      ].filter(img => img && img.trim() !== '')
+    })) || []
+
+    // Filtrar solo combos vigentes
+    const combosVigentes = combosWithImages.filter(combo => isComboValid(combo))
+
+    // Filtrar por término de búsqueda
+    const searchLower = searchTerm.toLowerCase()
+    const filteredCombos = combosVigentes.filter(combo => {
+      const nombre = combo.nombre?.toLowerCase() || ''
+      const descripcion = combo.descripcion?.toLowerCase() || ''
+
+      return nombre.includes(searchLower) ||
+             descripcion.includes(searchLower)
+    })
+
+    console.log('🔍 searchCombos - Combos filtrados:', filteredCombos.length)
+
+    return filteredCombos
+  } catch (error) {
+    console.error('Error searching combos:', error)
     return []
   }
 }

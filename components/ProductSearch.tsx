@@ -5,7 +5,7 @@ import { Search, X, Package } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Product } from '@/lib/products'
-import { getProducts, getPlanesProducto, calcularCuota } from '@/lib/supabase-products'
+import { getProducts, getPlanesProducto, calcularCuota, searchCombos, getPlanesCombo } from '@/lib/supabase-products'
 import { formatearPrecio } from '@/lib/supabase-products'
 
 interface ProductSearchProps {
@@ -17,7 +17,9 @@ function ProductSearchContent({ className = '' }: ProductSearchProps) {
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [products, setProducts] = useState<Product[]>([])
+  const [combos, setCombos] = useState<any[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [filteredCombos, setFilteredCombos] = useState<any[]>([])
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -48,32 +50,54 @@ function ProductSearchContent({ className = '' }: ProductSearchProps) {
     loadProducts()
   }, [])
 
-  // Filtrar productos cuando cambie el término de búsqueda
+  // Filtrar productos y combos cuando cambie el término de búsqueda
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredProducts([])
-      setIsSearchOpen(false)
-      return
+    const filterResults = async () => {
+      if (!searchTerm.trim()) {
+        setFilteredProducts([])
+        setFilteredCombos([])
+        setIsSearchOpen(false)
+        return
+      }
+
+      // Filtrar productos
+      const filteredProductsResults = products.filter(product => {
+        const name = product.descripcion?.toLowerCase() || ''
+        const description = product.descripcion_detallada?.toLowerCase() || ''
+        const category = product.categoria?.descripcion?.toLowerCase() || ''
+        const brand = product.marca?.descripcion?.toLowerCase() || ''
+        const searchLower = searchTerm.toLowerCase()
+
+        return name.includes(searchLower) ||
+               description.includes(searchLower) ||
+               category.includes(searchLower) ||
+               brand.includes(searchLower)
+      }).slice(0, 8) // Limitar a 8 productos
+
+      // Buscar combos
+      try {
+        const combosResults = await searchCombos(searchTerm)
+        const limitedCombos = combosResults.slice(0, 4) // Limitar a 4 combos
+
+        setFilteredProducts(filteredProductsResults)
+        setFilteredCombos(limitedCombos)
+
+        // No abrir automáticamente si estamos en la página de búsqueda
+        if (pathname !== '/buscar') {
+          setIsSearchOpen(filteredProductsResults.length > 0 || limitedCombos.length > 0)
+        }
+      } catch (error) {
+        console.error('Error searching combos:', error)
+        setFilteredProducts(filteredProductsResults)
+        setFilteredCombos([])
+
+        if (pathname !== '/buscar') {
+          setIsSearchOpen(filteredProductsResults.length > 0)
+        }
+      }
     }
 
-    const filtered = products.filter(product => {
-      const name = product.descripcion?.toLowerCase() || ''
-      const description = product.descripcion_detallada?.toLowerCase() || ''
-      const category = product.categoria?.descripcion?.toLowerCase() || ''
-      const brand = product.marca?.descripcion?.toLowerCase() || ''
-      const searchLower = searchTerm.toLowerCase()
-
-      return name.includes(searchLower) || 
-             description.includes(searchLower) || 
-             category.includes(searchLower) || 
-             brand.includes(searchLower)
-         }).slice(0, 12) // Limitar a 12 resultados
-
-    setFilteredProducts(filtered)
-    // No abrir automáticamente si estamos en la página de búsqueda
-    if (pathname !== '/buscar') {
-      setIsSearchOpen(filtered.length > 0)
-    }
+    filterResults()
   }, [searchTerm, products, pathname])
 
   // Cerrar búsqueda al hacer clic fuera
@@ -121,16 +145,16 @@ function ProductSearchContent({ className = '' }: ProductSearchProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => {
-              if (searchTerm.trim() && filteredProducts.length > 0) {
+              if (searchTerm.trim() && (filteredProducts.length > 0 || filteredCombos.length > 0)) {
                 setIsSearchOpen(true)
               }
             }}
             onClick={() => {
-              if (searchTerm.trim() && filteredProducts.length > 0) {
+              if (searchTerm.trim() && (filteredProducts.length > 0 || filteredCombos.length > 0)) {
                 setIsSearchOpen(true)
               }
             }}
-            placeholder="Buscar productos..."
+            placeholder="Buscar productos y combos..."
             className="w-full pl-12 pr-12 py-3 bg-white/90 backdrop-blur-sm border border-violet-200 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-300"
           />
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
@@ -152,12 +176,61 @@ function ProductSearchContent({ className = '' }: ProductSearchProps) {
 
       {/* Resultados de búsqueda */}
       {isSearchOpen && (
-                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto z-50">
+          {/* Combos encontrados */}
+          {filteredCombos.length > 0 && (
+            <div className="p-4 border-b border-gray-100">
+              <h3 className="text-sm font-semibold text-orange-700 mb-3">Combos ({filteredCombos.length})</h3>
+              <div className="space-y-3">
+                {filteredCombos.map((combo) => (
+                  <Link
+                    key={combo.id}
+                    href={`/combos/${combo.id}`}
+                    onClick={() => setIsSearchOpen(false)}
+                    className="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors group"
+                  >
+                    {/* Imagen del combo */}
+                    <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 mr-3 sm:mr-4">
+                      <img
+                        src={combo.imagen || '/placeholder.jpg'}
+                        alt={combo.nombre}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+
+                    {/* Información del combo */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full font-semibold">
+                          COMBO
+                        </span>
+                        {combo.descuento_porcentaje > 0 && (
+                          <span className="text-xs text-white bg-red-500 px-2 py-1 rounded-full font-semibold">
+                            -{combo.descuento_porcentaje}%
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2">
+                        {highlightText(combo.nombre || '', searchTerm)}
+                      </h4>
+                    </div>
+
+                    {/* Precios del combo */}
+                    <div className="flex-shrink-0 text-right hidden sm:block">
+                      <ComboFinancingPrices combo={combo} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Productos encontrados */}
-          <div className="p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Productos ({filteredProducts.length})</h3>
-            <div className="space-y-3">
-              {filteredProducts.map((product) => (
+          {filteredProducts.length > 0 && (
+            <div className="p-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Productos ({filteredProducts.length})</h3>
+              <div className="space-y-3">
+                {filteredProducts.map((product) => (
                 <Link
                   key={product.id}
                   href={product.categoria && product.categoria.descripcion && 
@@ -201,21 +274,22 @@ function ProductSearchContent({ className = '' }: ProductSearchProps) {
                 </Link>
               ))}
             </div>
-
-            {/* Ver todos los resultados */}
-            {filteredProducts.length > 0 && (
-              <div className="mt-4 pt-3 border-t border-gray-100">
-                <Link
-                  href={`/buscar?q=${encodeURIComponent(searchTerm)}`}
-                  onClick={() => setIsSearchOpen(false)}
-                  className="flex items-center justify-center w-full py-2 px-4 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors"
-                >
-                  <Package className="size-4 mr-2" />
-                  Ver todos los resultados
-                </Link>
-              </div>
-            )}
           </div>
+          )}
+
+          {/* Ver todos los resultados */}
+          {(filteredProducts.length > 0 || filteredCombos.length > 0) && (
+            <div className="p-4 pt-3 border-t border-gray-100">
+              <Link
+                href={`/buscar?q=${encodeURIComponent(searchTerm)}`}
+                onClick={() => setIsSearchOpen(false)}
+                className="flex items-center justify-center w-full py-2 px-4 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors"
+              >
+                <Package className="size-4 mr-2" />
+                Ver todos los resultados
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -259,6 +333,61 @@ function ProductFinancingPrices({ product }: { product: Product }) {
         {primerPlan.cuotas} cuotas mensuales de ${formatearPrecio(calculo.cuota_mensual)}
       </div>
       <div className="text-xs font-bold text-green-600">
+        ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC
+      </div>
+    </div>
+  )
+}
+
+// Componente para mostrar precios financiados de combos en los resultados de búsqueda
+function ComboFinancingPrices({ combo }: { combo: any }) {
+  const [planes, setPlanes] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadPlanes = async () => {
+      try {
+        const planesData = await getPlanesCombo(combo.id.toString())
+        setPlanes(planesData)
+      } catch (error) {
+        console.error('Error loading combo financing plans:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadPlanes()
+  }, [combo.id])
+
+  if (loading || planes.length === 0) {
+    return (
+      <div>
+        <div className="text-xs font-bold text-orange-600">
+          ${(combo.precio_combo || 0).toLocaleString()}
+        </div>
+      </div>
+    )
+  }
+
+  // Tomar el primer plan disponible
+  const primerPlan = planes[0]
+  const calculo = calcularCuota(combo.precio_combo || 0, primerPlan)
+
+  if (!calculo) {
+    return (
+      <div>
+        <div className="text-xs font-bold text-orange-600">
+          ${(combo.precio_combo || 0).toLocaleString()}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="text-xs font-bold text-orange-600">
+        {primerPlan.cuotas} cuotas mensuales de ${formatearPrecio(calculo.cuota_mensual)}
+      </div>
+      <div className="text-xs font-bold text-red-600">
         ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC
       </div>
     </div>

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   keywords: "electrodomésticos, cuotas, financiación, heladeras, lavarropas, aires acondicionados",
   generator: 'v0.dev',
   icons: {
-    icon: '/logo.png',
+    icon: '/LOGO2.png',
   },
   openGraph: {
     type: 'website',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
     images: [
       {
-        url: '/logo.png',
+        url: '/logo1.svg',
         width: 1200,
         height: 630,
         alt: 'MUNDOCUOTAS - Electrodomésticos en Cuotas',

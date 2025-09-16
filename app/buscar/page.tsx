@@ -6,8 +6,10 @@ import { Search, Package } from "lucide-react"
 import GlobalAppBar from "@/components/GlobalAppBar"
 import Footer from "@/components/Footer"
 import ProductCard from "@/components/ProductCard"
+import ComboCard from "@/components/ComboCard"
 import Pagination from "@/components/Pagination"
 import { useProducts } from "@/hooks/use-products"
+import { searchCombos } from "@/lib/supabase-products"
 
 const PRODUCTS_PER_PAGE = 6
 
@@ -16,11 +18,13 @@ function BuscarPageContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [animateProducts, setAnimateProducts] = useState(false)
+  const [combos, setCombos] = useState<any[]>([])
+  const [combosLoading, setCombosLoading] = useState(false)
 
-  const { 
-    products, 
-    loading, 
-    error 
+  const {
+    products,
+    loading,
+    error
   } = useProducts()
 
   // Obtener parámetros de la URL
@@ -30,6 +34,30 @@ function BuscarPageContent() {
       setSearchTerm(searchParam)
     }
   }, [searchParams])
+
+  // Cargar combos cuando cambie el término de búsqueda
+  useEffect(() => {
+    const loadCombos = async () => {
+      if (!searchTerm.trim()) {
+        setCombos([])
+        setCombosLoading(false)
+        return
+      }
+
+      try {
+        setCombosLoading(true)
+        const combosResults = await searchCombos(searchTerm)
+        setCombos(combosResults)
+      } catch (error) {
+        console.error('Error loading combos:', error)
+        setCombos([])
+      } finally {
+        setCombosLoading(false)
+      }
+    }
+
+    loadCombos()
+  }, [searchTerm])
 
   // Filtrar productos por búsqueda global
   const filteredProducts = useMemo(() => {
@@ -49,10 +77,20 @@ function BuscarPageContent() {
     })
   }, [products, searchTerm])
 
-  // Calcular paginación
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
+  // Combinar productos y combos para mostrar juntos
+  const allItems = useMemo(() => {
+    // Combinar productos y combos, ordenando por tipo (combos primero) y luego por relevancia
+    const items = [
+      ...combos.map(combo => ({ ...combo, type: 'combo' })),
+      ...filteredProducts.map(product => ({ ...product, type: 'product' }))
+    ]
+    return items
+  }, [combos, filteredProducts])
+
+  // Calcular paginación para todos los items
+  const totalPages = Math.ceil(allItems.length / PRODUCTS_PER_PAGE)
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
-  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
+  const paginatedItems = allItems.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
 
   // Resetear página cuando cambien los filtros
   useEffect(() => {
@@ -94,14 +132,14 @@ function BuscarPageContent() {
     window.history.replaceState({}, '', url.toString())
   }
 
-  if (loading) {
+  if (loading || combosLoading) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
         <GlobalAppBar />
         <div className="flex items-center justify-center py-20" style={{ marginTop: '10px' }}>
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-violet-600 mx-auto mb-4"></div>
-            <h2 className="text-2xl font-bold text-gray-900">Cargando productos...</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Cargando productos y combos...</h2>
           </div>
         </div>
         <Footer />
@@ -140,7 +178,7 @@ function BuscarPageContent() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
                 <input
                   type="text"
-                  placeholder="Buscar productos, marcas, categorías..."
+                  placeholder="Buscar productos, combos, marcas, categorías..."
                   value={searchTerm}
                   onChange={handleSearchChange}
                   className="w-full pl-16 pr-4 py-6 bg-white border-2 border-gray-200 rounded-2xl shadow-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-300 text-xl placeholder-gray-400"
@@ -173,29 +211,33 @@ function BuscarPageContent() {
                 Resultados para: <span className="text-violet-600">"{searchTerm}"</span>
               </h2>
               <p className="text-lg text-gray-600">
-                {filteredProducts.length === 0 
-                  ? "No se encontraron productos" 
-                  : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'producto encontrado' : 'productos encontrados'}`
+                {allItems.length === 0
+                  ? "No se encontraron productos ni combos"
+                  : `${filteredProducts.length} ${filteredProducts.length === 1 ? 'producto' : 'productos'}${combos.length > 0 ? ` y ${combos.length} ${combos.length === 1 ? 'combo' : 'combos'} encontrados` : ' encontrados'}`
                 }
               </p>
             </div>
           </div>
         )}
 
-        {/* Grid de Productos */}
+        {/* Grid de Productos y Combos */}
         {searchTerm && (
           <div id="productos-grid" className="mb-12">
-            {filteredProducts.length > 0 ? (
+            {allItems.length > 0 ? (
               <div className={`grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 transition-all duration-300 ${
                 animateProducts ? 'opacity-50' : 'opacity-100'
               }`}>
-                {paginatedProducts.map((product, index) => (
+                {paginatedItems.map((item, index) => (
                   <div
-                    key={product.id}
+                    key={`${item.type}-${item.id}`}
                     className="animate-fade-in-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <ProductCard product={product} />
+                    {item.type === 'combo' ? (
+                      <ComboCard combo={item} />
+                    ) : (
+                      <ProductCard product={item} />
+                    )}
                   </div>
                 ))}
               </div>
@@ -203,10 +245,10 @@ function BuscarPageContent() {
               <div className="text-center py-16">
                 <Package size={64} className="mx-auto mb-4 text-gray-300" />
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No se encontraron productos
+                  No se encontraron productos o combos
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  No hay productos que coincidan con "{searchTerm}"
+                  No hay productos o combos que coincidan con "{searchTerm}"
                 </p>
                 <div className="space-y-4">
                   <p className="text-sm text-gray-400">
