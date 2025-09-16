@@ -109,11 +109,17 @@ export default function ComboPageClient({ params: paramsPromise }: ComboPageClie
     imagen_3: combo.imagen_3,
     imagen_4: combo.imagen_4,
     imagen_5: combo.imagen_5,
-    fk_id_categoria: 1,
+    fk_id_categoria: combo.fk_id_categoria || 1,
     fk_id_marca: 1,
     destacado: false,
-    tiene_stock: combo.activo && isValid,
-    stock: 1
+    tiene_stock: combo.activo && isValid, // Esto habilitará el botón de favoritos
+    stock: combo.activo && isValid ? 1 : 0,
+    categoria: {
+      id: combo.fk_id_categoria || 1,
+      descripcion: 'combos' // Esto generará URL /combos/[id]
+    },
+    // Indicador para el componente ProductImageGallery de que es un combo
+    isCombo: true
   }
 
   return (
@@ -142,17 +148,75 @@ export default function ComboPageClient({ params: paramsPromise }: ComboPageClie
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Galería de imágenes */}
-          <div className="order-2 lg:order-1">
+          <div>
             <ProductImageGallery
               images={combo.imagenes}
               productName={combo.nombre}
               isFeatured={false}
               product={comboAsProduct}
             />
+
+            {/* Título móvil - debajo de la imagen */}
+            <div className="lg:hidden mt-6">
+              {/* Estado del combo */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                  <Package className="w-4 h-4 mr-1" />
+                  COMBO ESPECIAL
+                </span>
+                {!isValid && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                    <Clock className="w-4 h-4 mr-1" />
+                    No vigente
+                  </span>
+                )}
+                {hasDiscount && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    <Tag className="w-3 h-3 mr-1" />
+                    -{combo.descuento_porcentaje}%
+                  </span>
+                )}
+              </div>
+
+              {/* Título */}
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                {combo.nombre}
+              </h1>
+
+
+              {/* Planes de Financiación móvil */}
+              {isValid && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Opciones de Financiación</h3>
+                  <FinancingPlansCombo
+                    comboId={combo.id.toString()}
+                    precio={combo.precio_combo}
+                    showDebug={false}
+                  />
+                </div>
+              )}
+
+              {/* Vigencia móvil */}
+              {combo.fecha_vigencia_fin && (
+                <div className="flex items-center space-x-2 text-gray-600 mb-4">
+                  <Calendar className="w-5 h-5" />
+                  <span>
+                    Válido hasta: {new Date(combo.fecha_vigencia_fin).toLocaleDateString('es-AR')}
+                  </span>
+                </div>
+              )}
+
+              {/* Botón agregar a lista móvil */}
+              {isValid && (
+                <div className="mb-6">
+                  <AddToListButton product={comboAsProduct} variant="page" />
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Información del combo */}
-          <div className="order-1 lg:order-2 space-y-6">
+          {/* Información del combo - solo desktop */}
+          <div className="hidden lg:block space-y-6">
             {/* Estado del combo */}
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
@@ -172,28 +236,6 @@ export default function ComboPageClient({ params: paramsPromise }: ComboPageClie
               {combo.nombre}
             </h1>
 
-            {/* Precios */}
-            <div className="space-y-2">
-              {hasDiscount && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg text-gray-500 line-through">
-                    ${combo.precio_original.toLocaleString()}
-                  </span>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                    <Tag className="w-3 h-3 mr-1" />
-                    -{combo.descuento_porcentaje}%
-                  </span>
-                </div>
-              )}
-              <div className="text-3xl sm:text-4xl font-bold text-violet-600">
-                ${combo.precio_combo.toLocaleString()}
-              </div>
-              {hasDiscount && (
-                <p className="text-lg text-green-600 font-semibold">
-                  Ahorrás ${(combo.precio_original - combo.precio_combo).toLocaleString()}
-                </p>
-              )}
-            </div>
 
             {/* Planes de Financiación */}
             {isValid && (
@@ -224,18 +266,24 @@ export default function ComboPageClient({ params: paramsPromise }: ComboPageClie
               </div>
             )}
 
-            {/* Información adicional */}
+            {/* Información adicional - solo desktop */}
             <div className="border-t pt-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="text-sm">
                 <div>
                   <span className="font-medium text-gray-900">Productos incluidos:</span>
                   <span className="text-gray-600 ml-1">{combo.productos?.length || 0}</span>
                 </div>
-                <div>
-                  <span className="font-medium text-gray-900">Descuento:</span>
-                  <span className="text-gray-600 ml-1">{combo.descuento_porcentaje}%</span>
-                </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Información adicional móvil */}
+        <div className="lg:hidden bg-white rounded-lg p-4 shadow-sm mb-8">
+          <div className="text-sm">
+            <div>
+              <span className="font-medium text-gray-900">Productos incluidos:</span>
+              <span className="text-gray-600 ml-1">{combo.productos?.length || 0}</span>
             </div>
           </div>
         </div>

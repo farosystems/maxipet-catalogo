@@ -40,19 +40,34 @@ export default function ProductImageGallery({ images, productName, isFeatured = 
   const handleShareClick = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
-    // Construir la URL del producto
+
+    // Construir la URL del producto o combo
     const baseUrl = window.location.origin
     const productCategory = product.categoria?.descripcion || 'Sin categoría'
-    const productUrl = product.categoria && product.categoria.descripcion && 
-      !product.categoria.descripcion.toLowerCase().includes('categor') &&
-      product.categoria.descripcion.trim() !== '' ? 
-      `${baseUrl}/${productCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/${product.id}` :
-      `${baseUrl}/varios/${product.id}`
+
+    let productUrl = ''
+    let title = ''
+    let text = ''
+
+    // Detectar si es un combo
+    if ((product as any).isCombo || productCategory.toLowerCase() === 'combos') {
+      productUrl = `${baseUrl}/combos/${product.id}`
+      title = product.descripcion || 'Combo Especial'
+      text = `¡Mira este combo especial! ${product.descripcion || 'Combo'} con descuento increíble`
+    } else {
+      // Lógica original para productos
+      productUrl = product.categoria && product.categoria.descripcion &&
+        !product.categoria.descripcion.toLowerCase().includes('categor') &&
+        product.categoria.descripcion.trim() !== '' ?
+        `${baseUrl}/${productCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/${product.id}` :
+        `${baseUrl}/varios/${product.id}`
+      title = product.descripcion || 'Producto'
+      text = `¡Mira este producto! ${product.descripcion || 'Producto'}`
+    }
 
     const shareData = {
-      title: product.descripcion || 'Producto',
-      text: `¡Mira este producto! ${product.descripcion || 'Producto'}`,
+      title: title,
+      text: text,
       url: productUrl,
     }
 

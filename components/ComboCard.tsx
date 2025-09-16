@@ -109,23 +109,6 @@ export default function ComboCard({ combo }: ComboCardProps) {
             {combo.nombre}
           </h3>
 
-          {/* Precios */}
-          <div className="mb-2">
-            {hasDiscount && (
-              <p className="text-xs text-gray-500 line-through">
-                ${combo.precio_original.toLocaleString()}
-              </p>
-            )}
-            <p className="text-lg font-bold text-violet-600">
-              ${combo.precio_combo.toLocaleString()}
-            </p>
-            {hasDiscount && (
-              <p className="text-xs text-green-600 font-semibold">
-                Ahorrás ${(combo.precio_original - combo.precio_combo).toLocaleString()}
-              </p>
-            )}
-          </div>
-
           {/* Planes de Financiación - Solo si el combo está vigente */}
           {isValid && (
             <FinancingPlansCombo
