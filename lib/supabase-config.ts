@@ -204,7 +204,7 @@ export async function getConfiguracionWeb(): Promise<ConfiguracionWeb | null> {
 export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb | null> {
   try {
     const defaultConfig = {
-      logo_url: '/logo.png',
+      logo_url: '/LOGO2.png',
       logo_width: 200,
       logo_height: 60,
       appbar_height: 64,

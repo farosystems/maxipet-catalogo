@@ -85,7 +85,7 @@ export default function GlobalAppBar() {
                     />
                   ) : (
                     <img 
-                      src="/logo.png" 
+                      src="/LOGO2.png" 
                       alt="MUNDO CUOTAS" 
                       className="h-24 sm:h-28 lg:h-36 xl:h-40 w-auto transition-transform duration-300 group-hover:scale-105"
                     />

@@ -49,13 +49,13 @@ export default function Footer() {
                 />
               ) : (
                 <img 
-                  src="/logo.png" 
+                  src="/LOGO2.png" 
                   alt="MUNDO CUOTAS" 
                   className="h-12 w-auto"
                 />
               )}
               <div>
-                <h3 className="text-xl font-bold">MUNDOCUOTAS</h3>
+                <h3 className="text-xl font-bold">MUNDOCUOTA</h3>
                 <p className="text-violet-200 text-sm">Tu tienda de electrodomésticos de confianza</p>
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function Footer() {
         <div className="border-t border-violet-600 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-violet-200 text-sm text-center md:text-left">
-              © 2024 MUNDOCUOTAS. Todos los derechos reservados. 
+              © 2025 MUNDOCUOTA. Todos los derechos reservados. 
               Especialistas en electrodomésticos con financiación.
             </p>
             <div className="flex items-center space-x-4">

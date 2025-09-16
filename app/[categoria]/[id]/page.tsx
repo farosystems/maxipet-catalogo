@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
     
     if (!product) {
       return {
-        title: "Producto no encontrado - MUNDOCUOTAS",
+        title: "Producto no encontrado - MUNDOCUOTA",
         description: "El producto que buscas no está disponible.",
       }
     }
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
     // Verificar que el producto pertenece a la categoría correcta
     if (product.fk_id_categoria !== categoria?.id) {
       return {
-        title: "Producto no encontrado - MUNDOCUOTAS",
+        title: "Producto no encontrado - MUNDOCUOTA",
         description: "El producto que buscas no está disponible en esta categoría.",
       }
     }
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
     // Construir la URL completa de la imagen
     const imageUrl = productImage.startsWith('http') ? productImage : `https://catalogo-mundocuotas.vercel.app${productImage}`
 
-    const title = `${product.descripcion} - ${categoria?.descripcion || 'Producto'} | MUNDOCUOTAS`
+    const title = `${product.descripcion} - ${categoria?.descripcion || 'Producto'} | MUNDOCUOTA`
     const description = product.descripcion_detallada 
       ? product.descripcion_detallada.substring(0, 160) + '...'
       : `Descubre ${product.descripcion} con los mejores planes de financiación. ${categoria?.descripcion || 'Producto'} de calidad.`
@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
         type: 'website',
         locale: 'es_AR',
         url: `https://catalogo-mundocuotas.vercel.app/${resolvedParams.categoria}/${resolvedParams.id}`,
-        siteName: 'MUNDOCUOTAS',
+        siteName: 'MUNDOCUOTA',
         title,
         description,
         images: [
@@ -83,7 +83,7 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
   } catch (error) {
     console.error('Error generating metadata:', error)
     return {
-      title: "Producto - MUNDOCUOTAS",
+      title: "Producto - MUNDOCUOTA",
       description: "Descubre nuestros productos con los mejores planes de financiación.",
     }
   }

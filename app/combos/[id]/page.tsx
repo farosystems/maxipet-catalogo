@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
 
     if (!combo) {
       return {
-        title: "Combo no encontrado - MUNDOCUOTAS",
+        title: "Combo no encontrado - MUNDOCUOTA",
         description: "El combo que buscas no está disponible.",
       }
     }
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
         type: 'website',
         locale: 'es_AR',
         url: `https://catalogo-mundocuotas.vercel.app/combos/${resolvedParams.id}`,
-        siteName: 'MUNDOCUOTAS',
+        siteName: 'MUNDOCUOTA',
         title,
         description,
         images: [
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
   } catch (error) {
     console.error('Error generating metadata:', error)
     return {
-      title: "Combo - MUNDOCUOTAS",
+      title: "Combo - MUNDOCUOTA",
       description: "Descubre nuestros combos especiales con los mejores descuentos.",
     }
   }

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: ProductoVariosPageProps): Pro
     
     if (!product) {
       return {
-        title: "Producto no encontrado - MUNDOCUOTAS",
+        title: "Producto no encontrado - MUNDOCUOTA",
         description: "El producto que buscas no está disponible.",
       }
     }
