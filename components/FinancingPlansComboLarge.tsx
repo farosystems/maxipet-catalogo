@@ -1,0 +1,105 @@
+'use client'
+
+import { useState, useEffect, useMemo, memo } from 'react'
+import { PlanFinanciacion } from '@/lib/products'
+import { getPlanesCombo, calcularCuota, formatearPrecio, calcularAnticipo } from '@/lib/supabase-products'
+
+interface FinancingPlansComboLargeProps {
+  comboId: string
+  precio: number
+  showDebug?: boolean
+}
+
+const FinancingPlansComboLarge = memo(function FinancingPlansComboLarge({ comboId, precio, showDebug = false }: FinancingPlansComboLargeProps) {
+  const [planes, setPlanes] = useState<PlanFinanciacion[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Memoizar cálculos costosos y ordenar de menor a mayor precio
+  const calculatedPlanes = useMemo(() => {
+    return planes.map(plan => {
+      const calculo = calcularCuota(precio, plan)
+      const anticipo = calcularAnticipo(precio, plan)
+      return { plan, calculo, anticipo }
+    })
+    .filter(item => item.calculo)
+    .sort((a, b) => {
+      // Ordenar por cuota mensual EF de menor a mayor
+      return a.calculo!.cuota_mensual - b.calculo!.cuota_mensual
+    })
+  }, [planes, precio])
+
+  useEffect(() => {
+    async function loadPlanes() {
+      try {
+        setLoading(true)
+        const planesData = await getPlanesCombo(comboId)
+        console.log('Planes cargados para combo', comboId, ':', planesData)
+
+        setPlanes(planesData)
+      } catch (error) {
+        console.error('Error loading combo financing plans:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPlanes()
+  }, [comboId])
+
+  if (loading) {
+    return (
+      <div className="mt-3 p-2 bg-gray-50 rounded">
+        <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+      </div>
+    )
+  }
+
+  if (planes.length === 0) {
+    return null
+  }
+
+  // Mostrar todos los planes disponibles para este combo
+  const colores = ['bg-orange-100 text-orange-800', 'bg-red-100 text-red-800', 'bg-pink-100 text-pink-800', 'bg-yellow-100 text-yellow-800']
+
+  return (
+    <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Opciones de Financiación</h3>
+
+      {/* Información de debug */}
+      {showDebug && (
+        <div className="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
+          <strong>Planes del combo:</strong> {planes.length} planes disponibles
+        </div>
+      )}
+
+      <div className="space-y-2 sm:space-y-3">
+        {calculatedPlanes.map(({ plan, calculo, anticipo }, index) => (
+          <div
+            key={plan.id}
+            className={`p-3 sm:p-4 rounded-lg sm:rounded-xl text-center font-bold text-sm sm:text-lg ${
+              colores[index % colores.length]
+            }`}
+          >
+            <div className="mb-1 sm:mb-2">
+              {/* Primera línea: cuotas mensuales */}
+              <div className="text-base sm:text-xl mb-1">
+                {plan.cuotas} cuotas mensuales de
+              </div>
+              {/* Segunda línea: precios EF / P.ELEC */}
+              <div className="text-sm sm:text-lg">
+                ${formatearPrecio(calculo!.cuota_mensual)} EF / ${formatearPrecio(calculo!.cuota_mensual_electro)} P.ELEC
+              </div>
+            </div>
+            {anticipo > 0 && (
+              <div className="text-xs sm:text-base font-semibold opacity-90 border-t pt-1 sm:pt-2 mt-1 sm:mt-2">
+                Anticipo: ${formatearPrecio(anticipo)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+})
+
+export default FinancingPlansComboLarge
