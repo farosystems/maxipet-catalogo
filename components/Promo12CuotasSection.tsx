@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import ProductCard from "./ProductCard"
 import Pagination from "./Pagination"
 import { getProductosHomeDinamicos, getPlanHomeDinamico } from "@/lib/supabase-products"
+import { getTituloSeccionPromos } from "@/lib/supabase-config"
 import { PlanFinanciacion } from "@/lib/products"
 import { Product } from "@/lib/products"
 
@@ -15,22 +16,25 @@ export default function Promo12CuotasSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [tituloSeccionBase, setTituloSeccionBase] = useState<string>('Promociones')
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Cargar productos dinámicos basados en configuración
+  // Cargar productos dinámicos, plan y título basados en configuración
   useEffect(() => {
-    const loadPromoProducts = async () => {
+    const loadData = async () => {
       try {
         setLoading(true)
         setError(null)
-        
-        const [products, plan] = await Promise.all([
+
+        const [products, plan, tituloBase] = await Promise.all([
           getProductosHomeDinamicos(),
-          getPlanHomeDinamico()
+          getPlanHomeDinamico(),
+          getTituloSeccionPromos()
         ])
-        
+
         setPromoProducts(products)
         setPlanInfo(plan)
+        setTituloSeccionBase(tituloBase)
       } catch (err) {
         setError('Error al cargar los productos promocionales')
       } finally {
@@ -38,7 +42,7 @@ export default function Promo12CuotasSection() {
       }
     }
 
-    loadPromoProducts()
+    loadData()
   }, [])
 
   if (loading) {
@@ -46,9 +50,6 @@ export default function Promo12CuotasSection() {
       <section className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              Productos Promocionales
-            </h2>
             <p className="text-xl text-violet-100">Cargando productos promocionales...</p>
           </div>
         </div>
@@ -61,9 +62,6 @@ export default function Promo12CuotasSection() {
       <section className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              Productos Promocionales
-            </h2>
             <p className="text-xl text-red-300">Error al cargar los productos: {error}</p>
           </div>
         </div>
@@ -96,12 +94,12 @@ export default function Promo12CuotasSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-            {planInfo ? `Promo ${planInfo.cuotas} Cuotas` : 'Productos Promocionales'}
+            {tituloSeccionBase}
           </h2>
           <p className="text-xl text-violet-100 max-w-2xl mx-auto">
             {planInfo 
               ? `Los mejores productos disponibles en ${planInfo.cuotas} cuotas`
-              : 'Los mejores productos en promoción'
+              : `Los mejores productos de ${tituloSeccionBase.toLowerCase()}`
             }
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-500 mx-auto mt-4 rounded-full animate-pulse-glow"></div>

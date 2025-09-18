@@ -44,9 +44,6 @@ export default function CombosSection() {
       <section className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              {tituloSeccion}
-            </h2>
             <p className="text-xl text-violet-100">Cargando combos...</p>
           </div>
         </div>
@@ -59,9 +56,6 @@ export default function CombosSection() {
       <section className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
-              {tituloSeccion}
-            </h2>
             <p className="text-xl text-red-300">Error al cargar los combos: {error}</p>
           </div>
         </div>

@@ -62,6 +62,8 @@ export interface ConfiguracionWeb {
   // Configuración de secciones
   combos: boolean
   titulo_seccion_combos: string | null
+  titulo_seccion_promos: string | null
+  titulo_seccion_destacados: string | null
 }
 
 export interface Zona {
@@ -237,7 +239,9 @@ export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb 
       home_display_brand_filter: null,
       home_display_featured_only: false,
       combos: true,
-      titulo_seccion_combos: 'Combos Especiales'
+      titulo_seccion_combos: 'Combos Especiales',
+      titulo_seccion_promos: 'Promociones',
+      titulo_seccion_destacados: 'Productos Destacados'
     }
 
     const { data, error } = await supabase
@@ -285,5 +289,25 @@ export async function getTituloSeccionCombos(): Promise<string> {
   } catch (error) {
     console.error('Error al obtener título de sección de combos:', error)
     return 'Combos Especiales' // Por defecto
+  }
+}
+
+export async function getTituloSeccionPromos(): Promise<string> {
+  try {
+    const config = await getOrCreateConfiguracionWeb()
+    return config?.titulo_seccion_promos ?? 'Promociones'
+  } catch (error) {
+    console.error('Error al obtener título de sección de promociones:', error)
+    return 'Promociones' // Por defecto
+  }
+}
+
+export async function getTituloSeccionDestacados(): Promise<string> {
+  try {
+    const config = await getOrCreateConfiguracionWeb()
+    return config?.titulo_seccion_destacados ?? 'Productos Destacados'
+  } catch (error) {
+    console.error('Error al obtener título de sección de destacados:', error)
+    return 'Productos Destacados' // Por defecto
   }
 }

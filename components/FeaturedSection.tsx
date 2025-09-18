@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import ProductCard from "./ProductCard"
 import Pagination from "./Pagination"
 import { getFeaturedProducts } from "@/lib/supabase-products"
+import { getTituloSeccionDestacados } from "@/lib/supabase-config"
 import { Product } from "@/lib/products"
 
 const FEATURED_PRODUCTS_PER_PAGE = 3
@@ -13,18 +14,23 @@ export default function FeaturedSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [tituloSeccion, setTituloSeccion] = useState<string>('Productos Destacados')
   const scrollRef = useRef<HTMLDivElement>(null)
 
 
-  // Cargar productos destacados
+  // Cargar productos destacados y título
   useEffect(() => {
-    const loadFeaturedProducts = async () => {
+    const loadData = async () => {
       try {
         setLoading(true)
         setError(null)
-        
-        const products = await getFeaturedProducts()
+
+        const [products, titulo] = await Promise.all([
+          getFeaturedProducts(),
+          getTituloSeccionDestacados()
+        ])
         setFeaturedProducts(products)
+        setTituloSeccion(titulo)
       } catch (err) {
         setError('Error al cargar los productos destacados')
       } finally {
@@ -32,7 +38,7 @@ export default function FeaturedSection() {
       }
     }
 
-    loadFeaturedProducts()
+    loadData()
   }, [])
 
 
@@ -41,9 +47,6 @@ export default function FeaturedSection() {
       <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent whitespace-nowrap">
-              Productos Destacados
-            </h2>
             <p className="text-xl text-blue-100">Cargando productos destacados...</p>
           </div>
         </div>
@@ -56,9 +59,6 @@ export default function FeaturedSection() {
       <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent whitespace-nowrap">
-              Productos Destacados
-            </h2>
             <p className="text-xl text-red-300">Error al cargar los productos: {error}</p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function FeaturedSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-2xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent whitespace-nowrap">
-            Productos Destacados
+            {tituloSeccion}
           </h2>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto">
             Los electrodomésticos más vendidos y preferidos por nuestros clientes
