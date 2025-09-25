@@ -27,7 +27,11 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
     const comboImage = combo.imagen || combo.imagen_2 || combo.imagen_3 || combo.imagen_4 || combo.imagen_5 || '/placeholder.jpg'
 
     // Construir la URL completa de la imagen
-    const imageUrl = comboImage.startsWith('http') ? comboImage : `https://catalogo-mundocuotas.vercel.app${comboImage}`
+    const imageUrl = comboImage.startsWith('http')
+      ? comboImage
+      : comboImage.startsWith('/uploads/')
+        ? `https://catalogo-mundocuotas.vercel.app${comboImage}`
+        : `https://catalogo-mundocuotas.vercel.app${comboImage.startsWith('/') ? comboImage : `/${comboImage}`}`
 
     const title = `${combo.nombre} - Combo Especial | MUNDOCUOTAS`
     const description = combo.descripcion

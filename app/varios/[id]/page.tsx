@@ -27,7 +27,11 @@ export async function generateMetadata({ params }: ProductoVariosPageProps): Pro
     const productImage = product.imagen || product.imagen_2 || product.imagen_3 || product.imagen_4 || product.imagen_5 || '/placeholder.jpg'
     
     // Construir la URL completa de la imagen
-    const imageUrl = productImage.startsWith('http') ? productImage : `https://catalogo-mundocuotas.vercel.app${productImage}`
+    const imageUrl = productImage.startsWith('http')
+      ? productImage
+      : productImage.startsWith('/uploads/')
+        ? `https://catalogo-mundocuotas.vercel.app${productImage}`
+        : `https://catalogo-mundocuotas.vercel.app${productImage.startsWith('/') ? productImage : `/${productImage}`}`
 
     const title = `${product.descripcion} | MUNDOCUOTAS`
     const description = product.descripcion_detallada 
