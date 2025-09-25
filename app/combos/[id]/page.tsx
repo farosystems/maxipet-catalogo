@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
       openGraph: {
         type: 'website',
         locale: 'es_AR',
-        url: `https://catalogo-mundocuotas.vercel.app/combos/${resolvedParams.id}`,
+        url: `https://catalogo-mundocuotas.vercel.app/combos/${resolvedParams.id}?share=v2`,
         siteName: 'MUNDOCUOTA',
         title,
         description,
