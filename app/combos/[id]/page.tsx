@@ -31,11 +31,9 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
 
     let imageUrl: string
     if (comboImage.includes('supabase.co')) {
-      // USAR CLOUDINARY PARA TRANSFORMAR URLs DE SUPABASE
-      // Cloudinary puede fetchear imágenes de URLs externas
-      const encodedUrl = encodeURIComponent(comboImage)
-      imageUrl = `https://res.cloudinary.com/demo/image/fetch/w_1200,h_630,c_fill,f_auto,q_auto/${encodedUrl}`
-      console.log('☁️ Usando Cloudinary para Supabase:', imageUrl)
+      // PROBAR DIRECTA DE SUPABASE CON PARÁMETROS ESPECÍFICOS
+      imageUrl = `${comboImage}?width=1200&height=630&resize=cover&quality=85`
+      console.log('📸 Usando Supabase directo con parámetros:', imageUrl)
     } else {
       imageUrl = comboImage
       console.log('✅ Usando URL directa:', imageUrl)
