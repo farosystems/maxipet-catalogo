@@ -45,6 +45,11 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
       imageUrl = `https://catalogo-mundocuotas.vercel.app/${comboImage}`
     }
 
+    // Forzar actualización de metadatos con parámetro único
+    if (imageUrl.includes('supabase.co')) {
+      imageUrl += `?t=combo-${resolvedParams.id}-v2`
+    }
+
     console.log(`🌐 [Combo ${resolvedParams.id}] URL imagen final:`, imageUrl)
 
     const title = `${combo.nombre} - Combo Especial | MUNDOCUOTAS`
