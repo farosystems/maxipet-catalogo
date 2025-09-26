@@ -15,9 +15,14 @@ export default function GlobalAppBar() {
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false)
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const { itemCount } = useShoppingList()
   const { configuracion } = useConfiguracionWebContext()
   const isMobile = useIsMobile()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const getLogoSize = () => {
     if (!configuracion) return { width: isMobile ? 150 : 200, height: isMobile ? 45 : 60 }
@@ -26,7 +31,7 @@ export default function GlobalAppBar() {
       height: isMobile ? configuracion.mobile_logo_height : configuracion.logo_height
     }
   }
-  
+
   // Cerrar menú móvil al cambiar el tamaño de pantalla
   useEffect(() => {
     const handleResize = () => {
@@ -72,10 +77,23 @@ export default function GlobalAppBar() {
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center group">
                 <div className="relative">
-                  {configuracion?.logo_url ? (
-                    <img 
+                  {!isClient ? (
+                    // Durante la carga inicial, usar tamaño seguro
+                    <img
+                      src="/LOGO2.png"
+                      alt="MUNDO CUOTA"
+                      className="h-12 sm:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : isMobile ? (
+                    <img
+                      src="/LOGO2.png"
+                      alt="MUNDO CUOTA"
+                      className="h-24 sm:h-28 w-auto transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : configuracion?.logo_url ? (
+                    <img
                       src={configuracion.logo_url}
-                      alt="Logo" 
+                      alt="Logo"
                       style={{
                         width: `${getLogoSize().width}px`,
                         height: `${getLogoSize().height}px`,
@@ -84,10 +102,10 @@ export default function GlobalAppBar() {
                       className="transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
-                    <img 
-                      src="/LOGO2.png" 
-                      alt="MUNDO CUOTA" 
-                      className="h-24 sm:h-28 lg:h-36 xl:h-40 w-auto transition-transform duration-300 group-hover:scale-105"
+                    <img
+                      src="/LOGO2.png"
+                      alt="MUNDO CUOTA"
+                      className="lg:h-36 xl:h-40 w-auto transition-transform duration-300 group-hover:scale-105"
                     />
                   )}
                   <div className="absolute inset-0 bg-violet-400 opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
@@ -122,9 +140,9 @@ export default function GlobalAppBar() {
             {/* Controles de la derecha - solo en móvil */}
             <div className="flex items-center space-x-2 sm:space-x-4 lg:hidden">
               {/* Indicador de estado - oculto en móvil */}
-              <div 
+              <div
                 className="hidden sm:flex items-center space-x-2 rounded-full px-2 sm:px-3 py-1 backdrop-blur-sm opacity-30"
-                style={{ backgroundColor: configuracion?.primary_color || "#8b5cf6" }}
+                style={{ backgroundColor: configuracion?.primary_color || "#0066cc" }}
               >
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span 
@@ -139,8 +157,8 @@ export default function GlobalAppBar() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="hover:opacity-70 transition-colors duration-300 p-2 rounded-full text-white"
-                style={{ 
-                  backgroundColor: configuracion?.primary_color || "#8b5cf6"
+                style={{
+                  backgroundColor: configuracion?.primary_color || "#0066cc"
                 }}
                 aria-label="Abrir menú"
               >
