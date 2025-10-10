@@ -12,13 +12,16 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Missing url parameter', { status: 400 })
     }
 
-    // Solo permitir URLs de Supabase para seguridad
-    if (!imageUrl.includes('supabase.co')) {
-      console.log('❌ Image Proxy - Invalid URL (not Supabase)')
+    // Permitir URLs de Supabase y PostImages para seguridad
+    const allowedDomains = ['supabase.co', 'postimages.org', 'postimg.cc']
+    const isAllowed = allowedDomains.some(domain => imageUrl.includes(domain))
+
+    if (!isAllowed) {
+      console.log('❌ Image Proxy - Invalid URL (not from allowed domains)')
       return new NextResponse('Invalid URL', { status: 400 })
     }
 
-    console.log('📥 Image Proxy - Fetching from Supabase...')
+    console.log('📥 Image Proxy - Fetching image...')
 
     const response = await fetch(imageUrl, {
       headers: {
@@ -30,10 +33,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('📤 Image Proxy - Supabase response status:', response.status)
+    console.log('📤 Image Proxy - Response status:', response.status)
 
     if (!response.ok) {
-      console.log('❌ Image Proxy - Supabase error:', response.statusText)
+      console.log('❌ Image Proxy - Error:', response.statusText)
       return new NextResponse('Image not found', { status: 404 })
     }
 

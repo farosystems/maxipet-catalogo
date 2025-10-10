@@ -44,13 +44,18 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
 
     // Obtener la primera imagen del producto
     const productImage = product.imagen || product.imagen_2 || product.imagen_3 || product.imagen_4 || product.imagen_5 || '/placeholder.jpg'
-    
+
     // Construir la URL completa de la imagen
     let imageUrl: string
 
     if (productImage.startsWith('http://') || productImage.startsWith('https://')) {
-      // URL absoluta
-      imageUrl = productImage
+      // URL absoluta - usar proxy para Supabase y PostImages
+      if (productImage.includes('supabase.co') || productImage.includes('postimages.org') || productImage.includes('postimg.cc')) {
+        imageUrl = `https://catalogo-mundocuotas.vercel.app/api/image-proxy?url=${encodeURIComponent(productImage)}`
+      } else {
+        // URLs externas como mlstatic funcionan directamente
+        imageUrl = productImage
+      }
     } else if (productImage.startsWith('/')) {
       // URL relativa que empieza con /
       imageUrl = `https://catalogo-mundocuotas.vercel.app${productImage}`

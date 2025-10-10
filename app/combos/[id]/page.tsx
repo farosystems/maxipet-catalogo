@@ -31,17 +31,20 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
 
     let imageUrl: string
 
-    // Si es imagen de Supabase, intentar forzar acceso público
-    if (comboImage && comboImage.includes('supabase.co')) {
-      // Construir URL de Supabase Storage con parámetros para acceso público
-      const url = new URL(comboImage)
-      // Agregar parámetros que pueden ayudar con el acceso público
-      url.searchParams.set('t', Date.now().toString()) // timestamp para evitar caché
-      url.searchParams.set('download', '') // forzar descarga/acceso
-      imageUrl = url.toString()
-    } else if (comboImage && (comboImage.startsWith('http://') || comboImage.startsWith('https://'))) {
-      // URLs externas (como MercadoLibre) las usamos directamente
-      imageUrl = comboImage
+    if (comboImage && (comboImage.startsWith('http://') || comboImage.startsWith('https://'))) {
+      // URL absoluta - usar proxy para Supabase y PostImages
+      if (comboImage.includes('supabase.co') || comboImage.includes('postimages.org') || comboImage.includes('postimg.cc')) {
+        imageUrl = `https://catalogo-mundocuotas.vercel.app/api/image-proxy?url=${encodeURIComponent(comboImage)}`
+      } else {
+        // URLs externas como mlstatic funcionan directamente
+        imageUrl = comboImage
+      }
+    } else if (comboImage && comboImage.startsWith('/')) {
+      // URL relativa que empieza con /
+      imageUrl = `https://catalogo-mundocuotas.vercel.app${comboImage}`
+    } else if (comboImage && comboImage !== '/placeholder.jpg') {
+      // URL relativa sin /
+      imageUrl = `https://catalogo-mundocuotas.vercel.app/${comboImage}`
     } else {
       // Fallback al logo
       imageUrl = 'https://catalogo-mundocuotas.vercel.app/LOGO2.png'
