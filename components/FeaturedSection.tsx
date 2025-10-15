@@ -166,11 +166,11 @@ export default function FeaturedSection() {
 
               {/* Paginación para desktop */}
               {featuredProducts.length > FEATURED_PRODUCTS_PER_PAGE && (
-                <div className="mt-12">
-                  <Pagination 
-                    currentPage={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={handlePageChange} 
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
                   />
                 </div>
               )}

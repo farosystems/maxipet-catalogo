@@ -62,6 +62,7 @@ export interface ConfiguracionWeb {
   // Configuración de secciones
   combos: boolean
   titulo_seccion_combos: string | null
+  combos_subtitulo: string | null
   titulo_seccion_promos: string | null
   titulo_seccion_destacados: string | null
 }
@@ -240,6 +241,7 @@ export async function createDefaultConfiguracionWeb(): Promise<ConfiguracionWeb 
       home_display_featured_only: false,
       combos: true,
       titulo_seccion_combos: 'Combos Especiales',
+      combos_subtitulo: 'Aprovechá nuestros combos con descuentos especiales y ahorrá en grande',
       titulo_seccion_promos: 'Promociones',
       titulo_seccion_destacados: 'Productos Destacados'
     }
@@ -309,5 +311,15 @@ export async function getTituloSeccionDestacados(): Promise<string> {
   } catch (error) {
     console.error('Error al obtener título de sección de destacados:', error)
     return 'Productos Destacados' // Por defecto
+  }
+}
+
+export async function getSubtituloCombos(): Promise<string> {
+  try {
+    const config = await getOrCreateConfiguracionWeb()
+    return config?.combos_subtitulo ?? 'Aprovechá nuestros combos con descuentos especiales y ahorrá en grande'
+  } catch (error) {
+    console.error('Error al obtener subtítulo de combos:', error)
+    return 'Aprovechá nuestros combos con descuentos especiales y ahorrá en grande' // Por defecto
   }
 }

@@ -161,11 +161,11 @@ export default function Promo12CuotasSection() {
 
               {/* Paginación para desktop */}
               {promoProducts.length > PROMO_PRODUCTS_PER_PAGE && (
-                <div className="mt-12">
-                  <Pagination 
-                    currentPage={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={handlePageChange} 
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
                   />
                 </div>
               )}

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import ComboCard from "./ComboCard"
 import Pagination from "./Pagination"
 import { getCombosVigentes } from "@/lib/supabase-products"
-import { getTituloSeccionCombos } from "@/lib/supabase-config"
+import { getTituloSeccionCombos, getSubtituloCombos } from "@/lib/supabase-config"
 import { Combo } from "@/lib/products"
 
 const COMBOS_PER_PAGE = 3
@@ -15,20 +15,23 @@ export default function CombosSection() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [tituloSeccion, setTituloSeccion] = useState<string>('Combos Especiales')
+  const [subtitulo, setSubtitulo] = useState<string>('Aprovechá nuestros combos con descuentos especiales y ahorrá en grande')
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Cargar combos vigentes y título
+  // Cargar combos vigentes, título y subtítulo
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true)
         setError(null)
-        const [combosData, titulo] = await Promise.all([
+        const [combosData, titulo, subtituloText] = await Promise.all([
           getCombosVigentes(),
-          getTituloSeccionCombos()
+          getTituloSeccionCombos(),
+          getSubtituloCombos()
         ])
         setCombos(combosData)
         setTituloSeccion(titulo)
+        setSubtitulo(subtituloText)
       } catch (err) {
         setError('Error al cargar los combos')
       } finally {
@@ -82,7 +85,7 @@ export default function CombosSection() {
   return (
     <section
       id="combos"
-      className="py-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white relative overflow-hidden"
+      className="pt-8 pb-20 bg-gradient-to-br from-violet-900 via-purple-900 to-violet-800 text-white relative overflow-hidden"
     >
       {/* Fondo animado */}
       <div className="absolute inset-0 opacity-10">
@@ -91,18 +94,18 @@ export default function CombosSection() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-yellow-300 bg-clip-text text-transparent">
             {tituloSeccion}
           </h2>
           <p className="text-xl text-violet-100 max-w-2xl mx-auto">
-            Aprovechá nuestros combos con descuentos especiales y ahorrá en grande
+            {subtitulo}
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-500 mx-auto mt-4 rounded-full animate-pulse-glow"></div>
         </div>
 
         {/* Contador de combos */}
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center mt-4">
           <p className="text-violet-100">
             <span className="md:hidden">
               <span className="font-semibold text-white">{combos.length}</span> combos disponibles
