@@ -188,7 +188,7 @@ export default function CategoriaPage({ params }: CategoriaPageProps) {
         {/* Header de la página */}
         <div className="mb-6">
           <div className="text-center w-full">
-            <h1 className="text-4xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               {categoria.descripcion}
             </h1>
           </div>
