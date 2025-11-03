@@ -73,11 +73,27 @@ export function formatearPrecio(precio: number): string {
   })
 }
 
-// Función para redondear cuotas: a partir de $50 redondea por centenas
+// Función para verificar si una oferta individual del producto está vigente
+export function isOfertaVigente(product: any): boolean {
+  if (!product.precio_oferta || product.precio_oferta <= 0) return false
+  if (!product.fecha_vigencia_desde || !product.fecha_vigencia_hasta) return false
+
+  const now = new Date()
+  const fechaDesde = new Date(product.fecha_vigencia_desde)
+  const fechaHasta = new Date(product.fecha_vigencia_hasta)
+
+  // Establecer la fecha_hasta al final del día (23:59:59.999)
+  fechaHasta.setHours(23, 59, 59, 999)
+
+  return fechaDesde <= now && now <= fechaHasta
+}
+
+// Función para redondear cuotas: a partir de $50 redondea por centenas terminado en 999
 export function redondearCuota(cuota: number): number {
   if (cuota >= 50) {
-    // Redondear por centenas (a la centena más cercana)
-    return Math.round(cuota / 100) * 100
+    // Redondear al múltiplo de 1000 más cercano, luego restar 1 para terminar en 999
+    const redondeado = Math.round(cuota / 1000) * 1000
+    return redondeado === 0 ? Math.round(cuota / 100) * 100 : redondeado - 1
   }
   // Para cuotas menores a $50, mantener redondeo a 2 decimales
   return Math.round(cuota * 100) / 100
@@ -867,9 +883,28 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
 
     // Si hay un plan específico configurado, filtrar solo los productos con ese plan
     let productIdsFiltrados = productIdsConPlanes
+    let planEspecifico: PlanFinanciacion | null = null
 
     if (home_display_plan_id && home_display_plan_id !== null) {
       console.log('🔍 getProductosHomeDinamicos - Filtrando por plan específico:', home_display_plan_id)
+
+      // Obtener información del plan para validar montos
+      const { data: planData, error: planError } = await supabase
+        .from('planes_financiacion')
+        .select('*')
+        .eq('id', home_display_plan_id)
+        .eq('activo', true)
+        .single()
+
+      if (planData) {
+        planEspecifico = planData
+        console.log('🔍 getProductosHomeDinamicos - Plan encontrado:', {
+          id: planData.id,
+          cuotas: planData.cuotas,
+          monto_minimo: planData.monto_minimo,
+          monto_maximo: planData.monto_maximo
+        })
+      }
 
       const { data: productosConPlanEspecifico, error: planEspecificoError } = await supabase
         .from('producto_planes_default')
@@ -961,6 +996,24 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
         precio_con_descuento
       }
     }) || []
+
+    // Si hay un plan específico configurado, filtrar productos por precio según monto_minimo y monto_maximo
+    if (planEspecifico) {
+      const productosFiltradosPorPrecio = transformedData.filter(product => {
+        const precio = product.precio
+        const cumpleMinimoMaximo = precio >= planEspecifico.monto_minimo &&
+          (!planEspecifico.monto_maximo || precio <= planEspecifico.monto_maximo)
+
+        if (!cumpleMinimoMaximo) {
+          console.log(`🔍 getProductosHomeDinamicos - Producto ${product.id} (${product.descripcion}) excluido: precio ${precio} fuera del rango [${planEspecifico.monto_minimo}, ${planEspecifico.monto_maximo || 'sin límite'}]`)
+        }
+
+        return cumpleMinimoMaximo
+      })
+
+      console.log('🔍 getProductosHomeDinamicos - Productos después de filtrar por precio:', productosFiltradosPorPrecio.length)
+      return productosFiltradosPorPrecio
+    }
 
     return transformedData
   } catch (error) {

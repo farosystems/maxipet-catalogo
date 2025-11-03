@@ -72,6 +72,8 @@ export default function FinancingPlansCombo({ comboId, precio, showDebug = false
         const anticipo = calcularAnticipo(precio, plan)
         if (!calculo) return null
 
+        const sinInteres = plan.recargo_fijo === 0 && plan.recargo_porcentual === 0
+
         return (
           <div
             key={plan.id}
@@ -82,11 +84,11 @@ export default function FinancingPlansCombo({ comboId, precio, showDebug = false
             <div className="text-center leading-tight">
               {/* Primera línea: cuotas mensuales */}
               <div className="whitespace-nowrap text-base lowercase">
-                {plan.cuotas} cuotas mensuales de
+                {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas mensuales'} de
               </div>
               {/* Segunda línea: precio EF */}
               <div className="text-sm lowercase">
-                ${formatearPrecio(calculo.cuota_mensual)} ef
+                ${formatearPrecio(calculo.cuota_mensual)} {!sinInteres && 'ef'}
               </div>
               {anticipo > 0 && (
                 <div className="whitespace-nowrap text-xs">

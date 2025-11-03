@@ -5,7 +5,7 @@ import { Heart, Tag } from "lucide-react"
 import { Product } from "@/lib/products"
 import FinancingPlans from "./FinancingPlans"
 import { useShoppingList } from "@/hooks/use-shopping-list"
-import { formatearPrecio } from "@/lib/supabase-products"
+import { formatearPrecio, isOfertaVigente } from "@/lib/supabase-products"
 
 interface ProductCardProps {
   product: Product
@@ -16,8 +16,19 @@ export default function ProductCard({ product }: ProductCardProps) {
   const productCategory = product.categoria?.descripcion || product.category || 'Sin categoría'
   const productBrand = product.marca?.descripcion || product.brand || 'Sin marca'
   const productPrice = product.precio || product.price || 0
+
+  // Verificar si tiene oferta individual vigente
+  const hasOferta = isOfertaVigente(product)
+  const precioOferta = hasOferta ? product.precio_oferta! : productPrice
+  const descuentoOferta = hasOferta ? product.descuento_porcentual! : 0
+
+  // Verificar si tiene promoción
   const hasPromo = !!product.promo && !!product.precio_con_descuento
-  const finalPrice = hasPromo ? product.precio_con_descuento! : productPrice
+
+  // Determinar precio final: priorizar oferta individual sobre promoción
+  const finalPrice = hasOferta ? precioOferta : (hasPromo ? product.precio_con_descuento! : productPrice)
+  const hasDiscount = hasOferta || hasPromo
+  const discountPercentage = hasOferta ? descuentoOferta : (hasPromo ? product.promo!.descuento_porcentaje : 0)
 
   const productUrl = product.categoria && product.categoria.descripcion && 
     !product.categoria.descripcion.toLowerCase().includes('categor') &&
@@ -84,16 +95,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Badge Promoción - Esquina superior derecha (prioridad sobre destacado) */}
-          {hasPromo && hasStock && (
+          {/* Badge Oferta/Promoción - Esquina superior derecha (prioridad sobre destacado) */}
+          {hasDiscount && hasStock && (
             <div className="absolute top-1.5 right-1.5 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
               <Tag className="w-3 h-3" />
-              -{product.promo!.descuento_porcentaje}%
+              -{discountPercentage}%
             </div>
           )}
 
-          {/* Badge Destacado - Esquina superior derecha (solo si hay stock y no hay promo) */}
-          {product.destacado && hasStock && !hasPromo && (
+          {/* Badge Destacado - Esquina superior derecha (solo si hay stock y no hay oferta/promo) */}
+          {product.destacado && hasStock && !hasDiscount && (
             <div className="absolute top-1.5 right-1.5 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full text-xs font-semibold shadow-lg">
               Destacado
             </div>
@@ -116,15 +127,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Precio - Siempre visible */}
           <div className="mb-2">
-            {hasPromo ? (
-              // Con promoción: precio tachado + precio con descuento
+            {hasDiscount ? (
+              // Con oferta o promoción: precio tachado + precio con descuento
               <>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-base font-semibold text-red-600 line-through decoration-2">
                     ${formatearPrecio(productPrice)}
                   </span>
                   <span className="text-xs font-bold text-white bg-red-600 px-2 py-0.5 rounded-full">
-                    -{product.promo!.descuento_porcentaje}%
+                    -{discountPercentage}%
                   </span>
                 </div>
                 <div className="text-2xl font-bold text-green-600">
@@ -132,7 +143,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
               </>
             ) : (
-              // Sin promoción: precio normal
+              // Sin oferta ni promoción: precio normal
               <div className="text-xl font-bold text-blue-600">
                 ${formatearPrecio(productPrice)}
               </div>

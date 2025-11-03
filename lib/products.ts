@@ -96,9 +96,14 @@ export interface Product {
   aplicar_todos_planes?: boolean
   aplicar_planes_categoria?: boolean
   aplicar_planes_especiales?: boolean
+  // Campos para ofertas individuales del producto
+  precio_oferta?: number
+  descuento_porcentual?: number
+  fecha_vigencia_desde?: string
+  fecha_vigencia_hasta?: string
   created_at?: string
   updated_at?: string
-  
+
   // Campos adicionales para mantener compatibilidad
   name?: string
   description?: string
@@ -109,7 +114,7 @@ export interface Product {
   brand?: string
   financingPlans?: FinancingPlan[]
   specifications?: string[]
-  
+
   // Relaciones (se llenarán con JOIN)
   categoria?: Categoria
   marca?: Marca

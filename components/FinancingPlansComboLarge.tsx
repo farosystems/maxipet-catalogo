@@ -91,30 +91,34 @@ const FinancingPlansComboLarge = memo(function FinancingPlansComboLarge({ comboI
       )}
 
       <div className="space-y-2 sm:space-y-3">
-        {calculatedPlanes.map(({ plan, calculo, anticipo }, index) => (
-          <div
-            key={plan.id}
-            className={`p-3 sm:p-4 rounded-lg sm:rounded-xl text-center font-bold text-sm sm:text-lg transition-all duration-300 ${
-              colores[index % colores.length]
-            } ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
-          >
-            <div className="mb-1 sm:mb-2">
-              {/* Primera línea: cuotas mensuales */}
-              <div className="text-lg sm:text-2xl mb-1">
-                {plan.cuotas} cuotas mensuales de
+        {calculatedPlanes.map(({ plan, calculo, anticipo }, index) => {
+          const sinInteres = plan.recargo_fijo === 0 && plan.recargo_porcentual === 0
+
+          return (
+            <div
+              key={plan.id}
+              className={`p-3 sm:p-4 rounded-lg sm:rounded-xl text-center font-bold text-sm sm:text-lg transition-all duration-300 ${
+                colores[index % colores.length]
+              } ${!hasStock ? 'opacity-40 cursor-not-allowed' : ''}`}
+            >
+              <div className="mb-1 sm:mb-2">
+                {/* Primera línea: cuotas mensuales */}
+                <div className="text-lg sm:text-2xl mb-1">
+                  {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas mensuales'} de
+                </div>
+                {/* Segunda línea: precio EF */}
+                <div className="text-xl sm:text-3xl">
+                  ${formatearPrecio(calculo!.cuota_mensual)} {!sinInteres && 'EF'}
+                </div>
               </div>
-              {/* Segunda línea: precio EF */}
-              <div className="text-xl sm:text-3xl">
-                ${formatearPrecio(calculo!.cuota_mensual)} EF
-              </div>
+              {anticipo > 0 && (
+                <div className="text-xs sm:text-base font-semibold opacity-90 border-t pt-1 sm:pt-2 mt-1 sm:mt-2">
+                  Anticipo: ${formatearPrecio(anticipo)}
+                </div>
+              )}
             </div>
-            {anticipo > 0 && (
-              <div className="text-xs sm:text-base font-semibold opacity-90 border-t pt-1 sm:pt-2 mt-1 sm:mt-2">
-                Anticipo: ${formatearPrecio(anticipo)}
-              </div>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

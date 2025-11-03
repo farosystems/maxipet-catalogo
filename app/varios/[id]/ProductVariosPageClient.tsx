@@ -13,7 +13,7 @@ import AddToListButton from "@/components/AddToListButton"
 import FormattedProductDescription from "@/components/FormattedProductDescription"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import { useProducts } from "@/hooks/use-products"
-import { getProductById, formatearPrecio } from "@/lib/supabase-products"
+import { getProductById, formatearPrecio, isOfertaVigente } from "@/lib/supabase-products"
 
 interface ProductVariosPageClientProps {
   params: Promise<{
@@ -109,8 +109,20 @@ export default function ProductVariosPageClient({ params }: ProductVariosPageCli
   }
 
   const productDescription = product.descripcion_detallada || product.description || 'Sin descripción disponible'
+
+  // Verificar si tiene oferta individual vigente
+  const hasOferta = isOfertaVigente(product)
+  const precioOferta = hasOferta ? product.precio_oferta! : product.precio
+  const descuentoOferta = hasOferta ? product.descuento_porcentual! : 0
+
+  // Verificar si tiene promoción
   const hasPromo = !!product.promo && !!product.precio_con_descuento
-  const finalPrice = hasPromo ? product.precio_con_descuento! : (product.precio || 0)
+
+  // Determinar precio final: priorizar oferta individual sobre promoción
+  const finalPrice = hasOferta ? precioOferta : (hasPromo ? product.precio_con_descuento! : (product.precio || 0))
+  const hasDiscount = hasOferta || hasPromo
+  const discountPercentage = hasOferta ? descuentoOferta : (hasPromo ? product.promo!.descuento_porcentaje : 0)
+  const discountLabel = hasOferta ? 'Oferta Especial' : (hasPromo ? product.promo!.nombre : '')
 
   // Debug: Log para verificar las imágenes del producto
   console.log('🔍 Producto completo:', product)
@@ -220,16 +232,16 @@ export default function ProductVariosPageClient({ params }: ProductVariosPageCli
 
             {/* Precio del producto - Siempre visible */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 mb-4 shadow-md border border-blue-200">
-              {hasPromo ? (
-                // Con promoción
+              {hasDiscount ? (
+                // Con oferta o promoción
                 <>
                   <div className="flex items-center gap-2 mb-3">
                     <Tag className="w-5 h-5 text-red-600" />
                     <span className="text-sm font-bold text-red-600 uppercase">
-                      {product.promo!.nombre}
+                      {discountLabel}
                     </span>
                     <span className="ml-auto bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
-                      -{product.promo!.descuento_porcentaje}% OFF
+                      -{discountPercentage}% OFF
                     </span>
                   </div>
                   <div className="flex items-baseline gap-4">
@@ -240,12 +252,12 @@ export default function ProductVariosPageClient({ params }: ProductVariosPageCli
                       ${formatearPrecio(finalPrice)}
                     </span>
                   </div>
-                  {product.promo!.descripcion && (
+                  {hasPromo && product.promo!.descripcion && (
                     <p className="text-sm text-gray-700 mt-3 bg-white/50 rounded p-2">{product.promo!.descripcion}</p>
                   )}
                 </>
               ) : (
-                // Sin promoción
+                // Sin oferta ni promoción
                 <div className="flex items-center gap-3">
                   <span className="text-lg font-semibold text-blue-700">Precio:</span>
                   <span className="text-5xl font-bold text-blue-600">
