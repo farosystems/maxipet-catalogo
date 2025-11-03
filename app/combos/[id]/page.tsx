@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: ComboPageProps): Promise<Meta
     return {
       title,
       description,
-      keywords: `${combo.nombre}, combo, descuento, electrodomésticos, cuotas, financiación, oferta especial`,
+      keywords: `${combo.nombre}, combo, descuento, electrodomésticos, cuotas, financiación, contado`,
       openGraph: {
         type: 'website',
         locale: 'es_AR',

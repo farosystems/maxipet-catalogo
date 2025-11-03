@@ -136,7 +136,7 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
   const finalPrice = hasOferta ? precioOferta : (hasPromo ? product.precio_con_descuento! : (product.precio || 0))
   const hasDiscount = hasOferta || hasPromo
   const discountPercentage = hasOferta ? descuentoOferta : (hasPromo ? product.promo!.descuento_porcentaje : 0)
-  const discountLabel = hasOferta ? 'Oferta Especial' : (hasPromo ? product.promo!.nombre : '')
+  const discountLabel = hasOferta ? 'Contado' : (hasPromo ? product.promo!.nombre : '')
 
   // Debug: Log para verificar las imágenes del producto
   //console.log('🔍 Producto completo:', product)
