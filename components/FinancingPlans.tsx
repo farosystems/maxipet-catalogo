@@ -64,55 +64,37 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
     }
   }
 
-  // Debug: mostrar planes y precio
-  console.log('🔍 FinancingPlans - Precio:', precio)
-  console.log('🔍 FinancingPlans - Planes:', planes.map(p => ({
-    id: p.id,
-    cuotas: p.cuotas,
-    monto_minimo: p.monto_minimo,
-    monto_maximo: p.monto_maximo
-  })))
-
   // Filtrar planes por monto_minimo y monto_maximo
-  const planesQueCalifican = planes.filter(plan => {
-    // Si el plan no tiene monto_minimo definido, incluirlo
-    if (!plan.monto_minimo || plan.monto_minimo === 0) return true
+  // Consideramos "sin mínimo" valores muy pequeños como 0.01
+  const UMBRAL_SIN_MINIMO = 1
 
-    // Si tiene monto_minimo, verificar que el precio lo cumpla
+  const planesQueCalifican = planes.filter(plan => {
+    // El plan de 1 cuota (contado) se muestra SIEMPRE
+    if (plan.cuotas === 1) return true
+
+    // Si el plan no tiene monto_minimo significativo (< 1), incluirlo siempre
+    if (!plan.monto_minimo || plan.monto_minimo < UMBRAL_SIN_MINIMO) return true
+
+    // Si tiene monto_minimo significativo, verificar que el precio lo cumpla
     const cumpleMinimo = precio >= plan.monto_minimo
     const cumpleMaximo = !plan.monto_maximo || plan.monto_maximo === 0 || precio <= plan.monto_maximo
 
     return cumpleMinimo && cumpleMaximo
   })
 
-  console.log('🔍 FinancingPlans - Planes que califican:', planesQueCalifican.map(p => ({
-    cuotas: p.cuotas,
-    monto_minimo: p.monto_minimo
-  })))
-
   // Priorizar planes con monto_minimo: si hay al menos un plan con monto_minimo que el producto califica,
-  // Y también hay planes sin monto_minimo, mostrar SOLO los planes con monto_minimo
-  const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo > 0)
-  const planesSinMinimo = planesQueCalifican.filter(plan => !plan.monto_minimo || plan.monto_minimo === 0)
+  // Y también hay planes sin monto_minimo (excepto el de 1 cuota), mostrar SOLO los planes con monto_minimo
+  const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo >= UMBRAL_SIN_MINIMO)
+  const planesSinMinimo = planesQueCalifican.filter(plan => plan.cuotas !== 1 && (!plan.monto_minimo || plan.monto_minimo < UMBRAL_SIN_MINIMO))
+  const planContado = planesQueCalifican.find(plan => plan.cuotas === 1)
 
-  console.log('🔍 FinancingPlans - Planes con mínimo:', planesConMinimo.map(p => ({
-    cuotas: p.cuotas,
-    monto_minimo: p.monto_minimo
-  })))
-  console.log('🔍 FinancingPlans - Planes sin mínimo:', planesSinMinimo.map(p => ({
-    cuotas: p.cuotas,
-    monto_minimo: p.monto_minimo
-  })))
-
-  // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo
-  const planesFiltrados = (planesConMinimo.length > 0 && planesSinMinimo.length > 0)
-    ? planesConMinimo
-    : planesQueCalifican
-
-  console.log('🔍 FinancingPlans - Planes finales a mostrar:', planesFiltrados.map(p => ({
-    cuotas: p.cuotas,
-    monto_minimo: p.monto_minimo
-  })))
+  // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo + contado
+  let planesFiltrados: typeof planes
+  if (planesConMinimo.length > 0 && planesSinMinimo.length > 0) {
+    planesFiltrados = planContado ? [...planesConMinimo, planContado] : planesConMinimo
+  } else {
+    planesFiltrados = planesQueCalifican
+  }
 
   // Ordenar planes de menor a mayor precio (cuota mensual)
   const planesOrdenados = [...planesFiltrados].sort((a, b) => {
@@ -143,6 +125,8 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
         if (!calculo) return null
 
         const sinInteres = plan.recargo_fijo === 0 && plan.recargo_porcentual === 0
+        const esContado = plan.cuotas === 1
+        const precioContado = esContado ? precio * 0.8 : calculo.cuota_mensual
 
         return (
           <div
@@ -152,18 +136,31 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
             }`}
           >
             <div className="text-center leading-tight">
-              {/* Primera línea: cuotas mensuales */}
-              <div className="whitespace-nowrap text-base lowercase">
-                {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas mensuales'} de
-              </div>
-              {/* Segunda línea: precio EF */}
-              <div className="text-sm lowercase">
-                ${formatearPrecio(calculo.cuota_mensual)} {!sinInteres && 'ef'}
-              </div>
-              {anticipo > 0 && (
-                <div className="whitespace-nowrap text-xs">
-                  Anticipo: ${formatearPrecio(anticipo)}
-                </div>
+              {esContado ? (
+                <>
+                  {/* Plan de contado (1 cuota) */}
+                  <div className="whitespace-nowrap text-base">
+                    Contado 20% OFF!
+                  </div>
+                  <div className="text-sm">
+                    ${formatearPrecio(precioContado)}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Planes normales */}
+                  <div className="whitespace-nowrap text-base lowercase">
+                    {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas mensuales'} de
+                  </div>
+                  <div className="text-sm lowercase">
+                    ${formatearPrecio(calculo.cuota_mensual)} {!sinInteres && 'ef'}
+                  </div>
+                  {anticipo > 0 && (
+                    <div className="whitespace-nowrap text-xs">
+                      Anticipo: ${formatearPrecio(anticipo)}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

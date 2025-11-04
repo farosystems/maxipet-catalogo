@@ -414,7 +414,7 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
             <div className="mb-4 -mt-2 lg:mt-0">
               <FinancingPlansLarge
                 productoId={product.id.toString()}
-                precio={product.precio}
+                precio={hasOferta ? precioOferta : product.precio}
                 hasStock={product.tiene_stock}
               />
             </div>

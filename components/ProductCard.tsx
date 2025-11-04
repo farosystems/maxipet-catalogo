@@ -205,7 +205,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Planes de Financiación - Versión simplificada */}
-          <FinancingPlans productoId={product.id} precio={productPrice} />
+          <FinancingPlans productoId={product.id} precio={hasOferta ? precioOferta : productPrice} />
         </div>
       </div>
     </Link>
