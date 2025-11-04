@@ -64,13 +64,63 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
     }
   }
 
+  // Debug: mostrar planes y precio
+  console.log('🔍 FinancingPlans - Precio:', precio)
+  console.log('🔍 FinancingPlans - Planes:', planes.map(p => ({
+    id: p.id,
+    cuotas: p.cuotas,
+    monto_minimo: p.monto_minimo,
+    monto_maximo: p.monto_maximo
+  })))
+
+  // Filtrar planes por monto_minimo y monto_maximo
+  const planesQueCalifican = planes.filter(plan => {
+    // Si el plan no tiene monto_minimo definido, incluirlo
+    if (!plan.monto_minimo || plan.monto_minimo === 0) return true
+
+    // Si tiene monto_minimo, verificar que el precio lo cumpla
+    const cumpleMinimo = precio >= plan.monto_minimo
+    const cumpleMaximo = !plan.monto_maximo || plan.monto_maximo === 0 || precio <= plan.monto_maximo
+
+    return cumpleMinimo && cumpleMaximo
+  })
+
+  console.log('🔍 FinancingPlans - Planes que califican:', planesQueCalifican.map(p => ({
+    cuotas: p.cuotas,
+    monto_minimo: p.monto_minimo
+  })))
+
+  // Priorizar planes con monto_minimo: si hay al menos un plan con monto_minimo que el producto califica,
+  // Y también hay planes sin monto_minimo, mostrar SOLO los planes con monto_minimo
+  const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo > 0)
+  const planesSinMinimo = planesQueCalifican.filter(plan => !plan.monto_minimo || plan.monto_minimo === 0)
+
+  console.log('🔍 FinancingPlans - Planes con mínimo:', planesConMinimo.map(p => ({
+    cuotas: p.cuotas,
+    monto_minimo: p.monto_minimo
+  })))
+  console.log('🔍 FinancingPlans - Planes sin mínimo:', planesSinMinimo.map(p => ({
+    cuotas: p.cuotas,
+    monto_minimo: p.monto_minimo
+  })))
+
+  // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo
+  const planesFiltrados = (planesConMinimo.length > 0 && planesSinMinimo.length > 0)
+    ? planesConMinimo
+    : planesQueCalifican
+
+  console.log('🔍 FinancingPlans - Planes finales a mostrar:', planesFiltrados.map(p => ({
+    cuotas: p.cuotas,
+    monto_minimo: p.monto_minimo
+  })))
+
   // Ordenar planes de menor a mayor precio (cuota mensual)
-  const planesOrdenados = [...planes].sort((a, b) => {
+  const planesOrdenados = [...planesFiltrados].sort((a, b) => {
     const calculoA = calcularCuota(precio, a)
     const calculoB = calcularCuota(precio, b)
-    
+
     if (!calculoA || !calculoB) return 0
-    
+
     // Ordenar por cuota mensual EF de menor a mayor
     return calculoA.cuota_mensual - calculoB.cuota_mensual
   })

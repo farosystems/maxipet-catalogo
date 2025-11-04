@@ -18,7 +18,29 @@ const FinancingPlansLarge = memo(function FinancingPlansLarge({ productoId, prec
 
   // Memoizar cálculos costosos y ordenar de menor a mayor precio
   const calculatedPlanes = useMemo(() => {
-    return planes.map(plan => {
+    // Filtrar planes por monto_minimo y monto_maximo
+    const planesQueCalifican = planes.filter(plan => {
+      // Si el plan no tiene monto_minimo definido, incluirlo
+      if (!plan.monto_minimo || plan.monto_minimo === 0) return true
+
+      // Si tiene monto_minimo, verificar que el precio lo cumpla
+      const cumpleMinimo = precio >= plan.monto_minimo
+      const cumpleMaximo = !plan.monto_maximo || plan.monto_maximo === 0 || precio <= plan.monto_maximo
+
+      return cumpleMinimo && cumpleMaximo
+    })
+
+    // Priorizar planes con monto_minimo: si hay al menos un plan con monto_minimo que el producto califica,
+    // Y también hay planes sin monto_minimo, mostrar SOLO los planes con monto_minimo
+    const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo > 0)
+    const planesSinMinimo = planesQueCalifican.filter(plan => !plan.monto_minimo || plan.monto_minimo === 0)
+
+    // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo
+    const planesFiltrados = (planesConMinimo.length > 0 && planesSinMinimo.length > 0)
+      ? planesConMinimo
+      : planesQueCalifican
+
+    return planesFiltrados.map(plan => {
       const calculo = calcularCuota(precio, plan)
       const anticipo = calcularAnticipo(precio, plan)
       return { plan, calculo, anticipo }
