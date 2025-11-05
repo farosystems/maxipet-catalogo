@@ -98,7 +98,9 @@ export default function Promo12CuotasSection() {
           </h2>
           <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
             {planInfo
-              ? `Los mejores productos disponibles en ${planInfo.cuotas} cuotas`
+              ? planInfo.cuotas === 1
+                ? 'Los mejores productos disponibles en oferta de contado'
+                : `Los mejores productos disponibles en ${planInfo.cuotas} cuotas`
               : `Los mejores productos de ${tituloSeccionBase.toLowerCase()}`
             }
           </p>
@@ -109,18 +111,18 @@ export default function Promo12CuotasSection() {
         <div className="mb-8 text-center mt-4">
           <p className="text-emerald-100">
             <span className="md:hidden">
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}
+              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}
             </span>
             <span className="hidden md:inline">
               Mostrando <span className="font-semibold text-white">{displayProducts.length}</span> de{" "}
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}
+              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}
             </span>
           </p>
         </div>
 
         {promoProducts.length === 0 ? (
           <div className="text-center">
-            <p className="text-xl text-emerald-100">No hay productos disponibles {planInfo ? `en ${planInfo.cuotas} cuotas` : 'promocionales'}</p>
+            <p className="text-xl text-emerald-100">No hay productos disponibles {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}</p>
           </div>
         ) : (
           <>

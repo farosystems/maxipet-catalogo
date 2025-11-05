@@ -1029,18 +1029,37 @@ export async function getProductosHomeDinamicos(): Promise<Product[]> {
       console.log('🔍 getProductosHomeDinamicos - Sin filtro de destacados, mostrando todos los productos')
     }
 
-    // Aplicar límite de productos y ordenamiento
-    query = query
-      .order('destacado', { ascending: false })
-      .order('descripcion', { ascending: true })
-      .limit(home_display_products_count)
+    // Aplicar límite de productos y ordenamiento aleatorio
+    // Primero destacados, luego orden aleatorio
+    const { data: allProducts, error: fetchError } = await query
 
-    const { data, error } = await query
-
-    if (error) {
-      console.error('Error fetching productos dinámicos:', error)
+    if (fetchError) {
+      console.error('Error fetching productos dinámicos:', fetchError)
       return []
     }
+
+    // Separar destacados y no destacados
+    const destacados = allProducts?.filter(p => p.destacado) || []
+    const noDestacados = allProducts?.filter(p => !p.destacado) || []
+
+    // Mezclar aleatoriamente cada grupo
+    const shuffleArray = <T,>(array: T[]): T[] => {
+      const shuffled = [...array]
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      }
+      return shuffled
+    }
+
+    const destacadosAleatorios = shuffleArray(destacados)
+    const noDestacadosAleatorios = shuffleArray(noDestacados)
+
+    // Combinar: primero destacados aleatorios, luego no destacados aleatorios
+    const productosMezclados = [...destacadosAleatorios, ...noDestacadosAleatorios]
+
+    // Aplicar límite
+    const data = productosMezclados.slice(0, home_display_products_count)
 
     console.log('🔍 getProductosHomeDinamicos - Productos encontrados:', data?.length || 0)
 
