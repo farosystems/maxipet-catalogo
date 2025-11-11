@@ -1,21 +1,23 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import ProductCard from "./ProductCard"
-import Pagination from "./Pagination"
 import { getFeaturedProducts } from "@/lib/supabase-products"
 import { getTituloSeccionDestacados } from "@/lib/supabase-config"
 import { Product } from "@/lib/products"
-
-const FEATURED_PRODUCTS_PER_PAGE = 3
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function FeaturedSection() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
   const [tituloSeccion, setTituloSeccion] = useState<string>('Productos Destacados')
-  const scrollRef = useRef<HTMLDivElement>(null)
 
 
   // Cargar productos destacados y título
@@ -66,24 +68,13 @@ export default function FeaturedSection() {
     )
   }
 
-  // Calcular paginación para productos destacados
-  const totalPages = Math.ceil(featuredProducts.length / FEATURED_PRODUCTS_PER_PAGE)
-  const startIndex = (currentPage - 1) * FEATURED_PRODUCTS_PER_PAGE
-  const displayProducts = featuredProducts.slice(startIndex, startIndex + FEATURED_PRODUCTS_PER_PAGE)
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    // Scroll suave a la sección de destacados
-    document.getElementById("destacados")?.scrollIntoView({ behavior: "smooth" })
-  }
-
   return (
     <section
       id="destacados"
       className="pt-8 pb-20 text-white relative overflow-hidden"
     >
       {/* Imagen de fondo de la familia */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/hero-family.jpg')"
@@ -113,13 +104,7 @@ export default function FeaturedSection() {
         {/* Contador de productos destacados */}
         <div className="mb-8 text-center mt-4">
           <p className="text-emerald-100">
-            <span className="md:hidden">
-              <span className="font-semibold text-yellow-300">{featuredProducts.length}</span> productos destacados
-            </span>
-            <span className="hidden md:inline">
-              Mostrando <span className="font-semibold text-yellow-300">{displayProducts.length}</span> de{" "}
-              <span className="font-semibold text-yellow-300">{featuredProducts.length}</span> productos destacados
-            </span>
+            <span className="font-semibold text-yellow-300">{featuredProducts.length}</span> productos destacados
           </p>
         </div>
 
@@ -128,54 +113,28 @@ export default function FeaturedSection() {
             <p className="text-xl text-emerald-100">No hay productos destacados disponibles</p>
           </div>
         ) : (
-          <>
-            {/* Carrusel para móviles */}
-            <div className="md:hidden">
-              <div className="overflow-x-auto pb-4 scrollbar-hide">
-                <div className="flex gap-4 px-4">
-                  {featuredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex-shrink-0 w-56"
-                    >
-                      <ProductCard product={product} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Grid para desktop */}
-            <div className="hidden md:block">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-                {displayProducts.map((product, index) => (
-                  <div
-                    key={`${product.id}-${currentPage}`}
-                    className={`transition-all duration-700 ${
-                      index === 0
-                        ? "delay-100 animate-fade-in-up"
-                        : index === 1
-                          ? "delay-200 animate-fade-in-up"
-                          : "delay-300 animate-fade-in-up"
-                    }`}
+          <div className="px-12">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {featuredProducts.map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
                   >
                     <ProductCard product={product} />
-                  </div>
+                  </CarouselItem>
                 ))}
-              </div>
-
-              {/* Paginación para desktop */}
-              {featuredProducts.length > FEATURED_PRODUCTS_PER_PAGE && (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </div>
-          </>
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          </div>
         )}
       </div>
     </section>

@@ -1,23 +1,25 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import ProductCard from "./ProductCard"
-import Pagination from "./Pagination"
 import { getProductosHomeDinamicos, getPlanHomeDinamico } from "@/lib/supabase-products"
 import { getTituloSeccionPromos } from "@/lib/supabase-config"
 import { PlanFinanciacion } from "@/lib/products"
 import { Product } from "@/lib/products"
-
-const PROMO_PRODUCTS_PER_PAGE = 3
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function Promo12CuotasSection() {
   const [promoProducts, setPromoProducts] = useState<Product[]>([])
   const [planInfo, setPlanInfo] = useState<PlanFinanciacion | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
   const [tituloSeccionBase, setTituloSeccionBase] = useState<string>('Promociones')
-  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Cargar productos dinámicos, plan y título basados en configuración
   useEffect(() => {
@@ -69,17 +71,6 @@ export default function Promo12CuotasSection() {
     )
   }
 
-  // Calcular paginación para productos de 12 cuotas
-  const totalPages = Math.ceil(promoProducts.length / PROMO_PRODUCTS_PER_PAGE)
-  const startIndex = (currentPage - 1) * PROMO_PRODUCTS_PER_PAGE
-  const displayProducts = promoProducts.slice(startIndex, startIndex + PROMO_PRODUCTS_PER_PAGE)
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    // Scroll suave a la sección de promo
-    document.getElementById("promo-productos")?.scrollIntoView({ behavior: "smooth" })
-  }
-
   return (
     <section
       id="promo-productos"
@@ -110,13 +101,7 @@ export default function Promo12CuotasSection() {
         {/* Contador de productos */}
         <div className="mb-8 text-center mt-4">
           <p className="text-emerald-100">
-            <span className="md:hidden">
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}
-            </span>
-            <span className="hidden md:inline">
-              Mostrando <span className="font-semibold text-white">{displayProducts.length}</span> de{" "}
-              <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}
-            </span>
+            <span className="font-semibold text-white">{promoProducts.length}</span> productos {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}
           </p>
         </div>
 
@@ -125,54 +110,28 @@ export default function Promo12CuotasSection() {
             <p className="text-xl text-emerald-100">No hay productos disponibles {planInfo ? (planInfo.cuotas === 1 ? 'en oferta de contado' : `en ${planInfo.cuotas} cuotas`) : 'promocionales'}</p>
           </div>
         ) : (
-          <>
-            {/* Carrusel para móviles */}
-            <div className="md:hidden">
-              <div className="overflow-x-auto pb-4 scrollbar-hide">
-                <div className="flex gap-4 px-4">
-                  {promoProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex-shrink-0 w-64"
-                    >
-                      <ProductCard product={product} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Grid para desktop */}
-            <div className="hidden md:block">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-                {displayProducts.map((product, index) => (
-                  <div
-                    key={`${product.id}-${currentPage}`}
-                    className={`transition-all duration-700 ${
-                      index === 0
-                        ? "delay-100 animate-fade-in-up"
-                        : index === 1
-                          ? "delay-200 animate-fade-in-up"
-                          : "delay-300 animate-fade-in-up"
-                    }`}
+          <div className="px-12">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {promoProducts.map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
                   >
                     <ProductCard product={product} />
-                  </div>
+                  </CarouselItem>
                 ))}
-              </div>
-
-              {/* Paginación para desktop */}
-              {promoProducts.length > PROMO_PRODUCTS_PER_PAGE && (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </div>
-          </>
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          </div>
         )}
       </div>
     </section>

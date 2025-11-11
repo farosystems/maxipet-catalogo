@@ -315,25 +315,48 @@ function ProductFinancingPrices({ product }: { product: Product }) {
     loadPlanes()
   }, [product.id])
 
-  if (loading || planes.length === 0) {
-    return null
+  // Determinar precio a mostrar (precio_oferta si existe, sino precio normal)
+  const precioMostrar = product.precio_oferta || product.precio || 0
+
+  if (loading) {
+    return (
+      <div className="text-xs font-bold text-gray-600">
+        ${formatearPrecio(precioMostrar)}
+      </div>
+    )
+  }
+
+  // Si no hay planes, mostrar solo el precio
+  if (planes.length === 0) {
+    return (
+      <div className="text-xs font-bold text-blue-600">
+        ${formatearPrecio(precioMostrar)}
+      </div>
+    )
   }
 
   // Tomar el primer plan disponible
   const primerPlan = planes[0]
-  const calculo = calcularCuota(product.precio || 0, primerPlan)
+  const calculo = calcularCuota(precioMostrar, primerPlan)
 
   if (!calculo) {
-    return null
+    return (
+      <div className="text-xs font-bold text-blue-600">
+        ${formatearPrecio(precioMostrar)}
+      </div>
+    )
   }
+
+  // Verificar si el plan tiene interés
+  const sinInteres = primerPlan.recargo_fijo === 0 && primerPlan.recargo_porcentual === 0
 
   return (
     <div>
       <div className="text-xs font-bold text-blue-600">
-        {primerPlan.cuotas} cuotas mensuales de ${formatearPrecio(calculo.cuota_mensual)}
+        ${formatearPrecio(precioMostrar)}
       </div>
       <div className="text-xs font-bold text-green-600">
-        ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC
+        {primerPlan.cuotas} cuotas{sinInteres ? ' sin interés' : ''} de ${formatearPrecio(calculo.cuota_mensual)}
       </div>
     </div>
   )
@@ -358,37 +381,47 @@ function ComboFinancingPrices({ combo }: { combo: any }) {
     loadPlanes()
   }, [combo.id])
 
-  if (loading || planes.length === 0) {
+  const precioCombo = combo.precio_combo || 0
+
+  if (loading) {
     return (
-      <div>
-        <div className="text-xs font-bold text-orange-600">
-          ${(combo.precio_combo || 0).toLocaleString()}
-        </div>
+      <div className="text-xs font-bold text-orange-600">
+        ${formatearPrecio(precioCombo)}
+      </div>
+    )
+  }
+
+  // Si no hay planes, mostrar solo el precio
+  if (planes.length === 0) {
+    return (
+      <div className="text-xs font-bold text-orange-600">
+        ${formatearPrecio(precioCombo)}
       </div>
     )
   }
 
   // Tomar el primer plan disponible
   const primerPlan = planes[0]
-  const calculo = calcularCuota(combo.precio_combo || 0, primerPlan)
+  const calculo = calcularCuota(precioCombo, primerPlan)
 
   if (!calculo) {
     return (
-      <div>
-        <div className="text-xs font-bold text-orange-600">
-          ${(combo.precio_combo || 0).toLocaleString()}
-        </div>
+      <div className="text-xs font-bold text-orange-600">
+        ${formatearPrecio(precioCombo)}
       </div>
     )
   }
 
+  // Verificar si el plan tiene interés
+  const sinInteres = primerPlan.recargo_fijo === 0 && primerPlan.recargo_porcentual === 0
+
   return (
     <div>
       <div className="text-xs font-bold text-orange-600">
-        {primerPlan.cuotas} cuotas mensuales de ${formatearPrecio(calculo.cuota_mensual)}
+        ${formatearPrecio(precioCombo)}
       </div>
       <div className="text-xs font-bold text-red-600">
-        ${formatearPrecio(calculo.cuota_mensual_electro)} P.ELEC
+        {primerPlan.cuotas} cuotas{sinInteres ? ' sin interés' : ''} de ${formatearPrecio(calculo.cuota_mensual)}
       </div>
     </div>
   )

@@ -149,11 +149,11 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
               ) : (
                 <>
                   {/* Planes normales */}
-                  <div className="whitespace-nowrap text-base lowercase">
-                    {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas mensuales'} de
+                  <div className="whitespace-nowrap text-base">
+                    {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas'} de
                   </div>
-                  <div className="text-sm lowercase">
-                    ${formatearPrecio(calculo.cuota_mensual)} {!sinInteres && 'ef'}
+                  <div className="text-sm">
+                    ${formatearPrecio(calculo.cuota_mensual)}
                   </div>
                   {anticipo > 0 && (
                     <div className="whitespace-nowrap text-xs">
