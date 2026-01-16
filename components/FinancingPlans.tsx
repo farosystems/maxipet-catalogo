@@ -23,10 +23,24 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
           getPlanesProducto(productoId),
           getTipoPlanesProducto(productoId)
         ])
-        //console.log('Planes cargados para producto', productoId, ':', planesData)
-        //console.log('Tipo de planes para producto', productoId, ':', tipoData)
-        
-        setPlanes(planesData)
+
+        // Debug ampliado para todos los productos con error
+        if (['201', '204', '189', '15', '180', '10'].includes(productoId)) {
+          console.log(`📥 CARGA [${productoId}]: Planes recibidos =`, planesData.map(p => ({ id: p.id, nombre: p.nombre })))
+          console.log(`📥 CARGA [${productoId}]: IDs recibidos =`, planesData.map(p => p.id))
+        }
+
+        // Deduplicar planes por ID como medida de seguridad adicional
+        const planesUnicos = planesData.filter((plan, index, self) =>
+          index === self.findIndex((p) => p.id === plan.id)
+        )
+
+        if (['201', '204', '189', '15', '180', '10'].includes(productoId)) {
+          console.log(`✅ DEDUP [${productoId}]: Planes después de deduplicar =`, planesUnicos.map(p => ({ id: p.id, nombre: p.nombre })))
+          console.log(`✅ DEDUP [${productoId}]: Total planes únicos =`, planesUnicos.length)
+        }
+
+        setPlanes(planesUnicos)
         setTipoPlanes(tipoData)
       } catch (error) {
         console.error('Error loading financing plans:', error)
@@ -82,18 +96,12 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
     return cumpleMinimo && cumpleMaximo
   })
 
-  // Priorizar planes con monto_minimo: si hay al menos un plan con monto_minimo que el producto califica,
-  // Y también hay planes sin monto_minimo (excepto el de 1 cuota), mostrar SOLO los planes con monto_minimo
-  const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo >= UMBRAL_SIN_MINIMO)
-  const planesSinMinimo = planesQueCalifican.filter(plan => plan.cuotas !== 1 && (!plan.monto_minimo || plan.monto_minimo < UMBRAL_SIN_MINIMO))
-  const planContado = planesQueCalifican.find(plan => plan.cuotas === 1)
+  // Mostrar todos los planes que califican (sin priorización)
+  const planesFiltrados = planesQueCalifican
 
-  // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo + contado
-  let planesFiltrados: typeof planes
-  if (planesConMinimo.length > 0 && planesSinMinimo.length > 0) {
-    planesFiltrados = planContado ? [...planesConMinimo, planContado] : planesConMinimo
-  } else {
-    planesFiltrados = planesQueCalifican
+  // Debug: verificar duplicados después del filtrado
+  if (['201', '204', '189', '15', '180', '10'].includes(productoId)) {
+    console.log(`🔍 FILTRADO [${productoId}]: planesFiltrados IDs =`, planesFiltrados.map(p => p.id))
   }
 
   // Ordenar planes de menor a mayor precio (cuota mensual)
@@ -107,8 +115,20 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
     return calculoA.cuota_mensual - calculoB.cuota_mensual
   })
 
+  // DEDUPLICACIÓN FINAL CRÍTICA: eliminar duplicados por ID justo antes del render
+  const planesFinales = planesOrdenados.filter((plan, index, self) =>
+    index === self.findIndex((p) => p.id === plan.id)
+  )
+
   // Mostrar todos los planes disponibles para este producto
   const colores = ['bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-emerald-100 text-emerald-800', 'bg-orange-100 text-orange-800']
+
+  // Debug crítico: verificar duplicados justo antes del render
+  if (['201', '204', '189', '15', '180', '10'].includes(productoId)) {
+    console.log(`🚨 RENDER [${productoId}]: planesFinales =`, planesFinales.map(p => ({ id: p.id, nombre: p.nombre })))
+    console.log(`🚨 RENDER [${productoId}]: IDs =`, planesFinales.map(p => p.id))
+    console.log(`🚨 RENDER [${productoId}]: planesFinales.length =`, planesFinales.length)
+  }
 
   return (
     <div className="mt-3 space-y-2">
@@ -118,8 +138,8 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
           <strong>Tipo de planes:</strong> {getTipoPlanesText(tipoPlanes)} | <strong>Total:</strong> {planes.length} planes
         </div>
       )}
-      
-      {planesOrdenados.map((plan, index) => {
+
+      {planesFinales.map((plan, index) => {
         const calculo = calcularCuota(precio, plan)
         const anticipo = calcularAnticipo(precio, plan)
         if (!calculo) return null
@@ -140,7 +160,7 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
 
         return (
           <div
-            key={plan.id}
+            key={`${productoId}-${plan.id}`}
             className={`py-2 px-2 sm:px-4 rounded-lg text-center font-bold text-xs sm:text-sm w-full ${
               esContado ? 'bg-red-100 text-red-800' : colores[index % colores.length]
             }`}

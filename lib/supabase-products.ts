@@ -187,7 +187,9 @@ export async function getPlanesFinanciacion(): Promise<PlanFinanciacion[]> {
 // Obtener planes disponibles para un producto específico con lógica simplificada
 export async function getPlanesProducto(productoId: string): Promise<PlanFinanciacion[]> {
   try {
-    //console.log('🔍 getPlanesProducto: Buscando planes para producto ID:', productoId)
+    // Debug solo para producto 204
+    const isDebugProduct = productoId === '204'
+    if (isDebugProduct) console.log('🔍 getPlanesProducto: Buscando planes para producto ID:', productoId)
     
     // 1. PRIORIDAD ALTA: Buscar planes especiales (productos_planes)
     try {
@@ -202,15 +204,16 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
       
       if (planesEspeciales && planesEspeciales.length > 0) {
         // Obtener los planes de financiación por separado
-        const planIds = planesEspeciales.map(p => p.fk_id_plan)
+        // Eliminar IDs duplicados usando Set
+        const planIds = [...new Set(planesEspeciales.map(p => p.fk_id_plan))]
         //console.log('🔍 getPlanesProducto: IDs de planes especiales encontrados:', planIds)
-        
+
         const { data: planesData, error: planesError } = await supabase
           .from('planes_financiacion')
           .select('*')
           .in('id', planIds)
           .eq('activo', true)
-        
+
         if (planesData && planesData.length > 0) {
           //console.log('🔍 getPlanesProducto: Detalle planes especiales:', planesData.map(p => p.cuotas))
           //console.log('✅ getPlanesProducto: Usando planes especiales:', planesData.length, planesData.map(p => p.cuotas))
@@ -236,18 +239,21 @@ export async function getPlanesProducto(productoId: string): Promise<PlanFinanci
       
       if (planesDefault && planesDefault.length > 0) {
         // Obtener los planes de financiación por separado
-        const planIds = planesDefault.map(p => p.fk_id_plan)
-        //console.log('🔍 getPlanesProducto: IDs de planes encontrados:', planIds)
-        
+        // Eliminar IDs duplicados usando Set
+        if (isDebugProduct) console.log('🔍 getPlanesProducto: IDs ANTES de deduplicar:', planesDefault.map(p => p.fk_id_plan))
+
+        const planIds = [...new Set(planesDefault.map(p => p.fk_id_plan))]
+        if (isDebugProduct) console.log('🔍 getPlanesProducto: IDs DESPUÉS de deduplicar:', planIds)
+
         const { data: planesData, error: planesError } = await supabase
           .from('planes_financiacion')
           .select('*')
           .in('id', planIds)
           .eq('activo', true)
-        
+
         if (planesData && planesData.length > 0) {
-          //console.log('🔍 getPlanesProducto: Detalle planes por defecto:', planesData.map(p => p.cuotas))
-          //console.log('✅ getPlanesProducto: Usando planes por defecto:', planesData.length, planesData.map(p => p.cuotas))
+          if (isDebugProduct) console.log('🔍 getPlanesProducto: Planes retornados:', planesData.map(p => ({ id: p.id, nombre: p.nombre })))
+          if (isDebugProduct) console.log('✅ getPlanesProducto: Total planes a retornar:', planesData.length)
           return planesData
         }
       }
@@ -1139,7 +1145,8 @@ export async function getPlanesCombo(comboId: string): Promise<PlanFinanciacion[
 
     if (planesCombo && planesCombo.length > 0) {
       // Obtener los planes de financiación por separado
-      const planIds = planesCombo.map(p => p.fk_id_plan)
+      // Eliminar IDs duplicados usando Set
+      const planIds = [...new Set(planesCombo.map(p => p.fk_id_plan))]
       console.log('🔍 getPlanesCombo: IDs de planes encontrados:', planIds)
 
       const { data: planesData, error: planesError } = await supabase

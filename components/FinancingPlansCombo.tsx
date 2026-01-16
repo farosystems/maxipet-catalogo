@@ -21,7 +21,12 @@ export default function FinancingPlansCombo({ comboId, precio, showDebug = false
         const planesData = await getPlanesCombo(comboId)
         console.log('Planes cargados para combo', comboId, ':', planesData)
 
-        setPlanes(planesData)
+        // Deduplicar planes por ID como medida de seguridad adicional
+        const planesUnicos = planesData.filter((plan, index, self) =>
+          index === self.findIndex((p) => p.id === plan.id)
+        )
+
+        setPlanes(planesUnicos)
       } catch (error) {
         console.error('Error loading combo financing plans:', error)
       } finally {
@@ -62,19 +67,8 @@ export default function FinancingPlansCombo({ comboId, precio, showDebug = false
     return cumpleMinimo && cumpleMaximo
   })
 
-  // Priorizar planes con monto_minimo: si hay al menos un plan con monto_minimo que el producto califica,
-  // Y también hay planes sin monto_minimo (excepto el de 1 cuota), mostrar SOLO los planes con monto_minimo
-  const planesConMinimo = planesQueCalifican.filter(plan => plan.monto_minimo && plan.monto_minimo >= UMBRAL_SIN_MINIMO)
-  const planesSinMinimo = planesQueCalifican.filter(plan => plan.cuotas !== 1 && (!plan.monto_minimo || plan.monto_minimo < UMBRAL_SIN_MINIMO))
-  const planContado = planesQueCalifican.find(plan => plan.cuotas === 1)
-
-  // Si hay planes con mínimo Y también planes sin mínimo, priorizar los planes con mínimo + contado
-  let planesFiltrados: typeof planes
-  if (planesConMinimo.length > 0 && planesSinMinimo.length > 0) {
-    planesFiltrados = planContado ? [...planesConMinimo, planContado] : planesConMinimo
-  } else {
-    planesFiltrados = planesQueCalifican
-  }
+  // Mostrar todos los planes que califican (sin priorización)
+  const planesFiltrados = planesQueCalifican
 
   // Ordenar planes de menor a mayor precio (cuota mensual)
   const planesOrdenados = [...planesFiltrados].sort((a, b) => {
@@ -110,7 +104,7 @@ export default function FinancingPlansCombo({ comboId, precio, showDebug = false
 
         return (
           <div
-            key={plan.id}
+            key={`${comboId}-${plan.id}`}
             className={`py-2 px-2 sm:px-4 rounded-lg text-center font-bold text-xs sm:text-sm w-full ${
               esContado ? 'bg-red-100 text-red-800' : colores[index % colores.length]
             }`}
