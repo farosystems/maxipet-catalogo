@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
     images: [
       {
-        url: 'https://www.mundocuota.com.ar/LOGO2.png?v=3',
-        width: 1200,
-        height: 630,
+        url: 'https://www.mundocuota.com.ar/LOGO2.png?v=5',
+        width: 400,
+        height: 200,
         alt: 'SUR IMPORTACIÓN - Electrodomésticos en Cuotas',
       },
     ],
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SUR IMPORTACIÓN - Electrodomésticos en Cuotas',
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
-    images: ['https://www.mundocuota.com.ar/LOGO2.png?v=2'],
+    images: ['https://www.mundocuota.com.ar/LOGO2.png?v=5'],
   },
 }
 
