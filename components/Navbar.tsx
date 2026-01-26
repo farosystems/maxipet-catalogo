@@ -94,11 +94,11 @@ export default function Navbar() {
                   className="transition-all duration-300"
                 />
               ) : (
-                <span 
+                <span
                   className="text-2xl font-bold transition-colors duration-300 animate-pulse-glow"
                   style={{ color: configuracion?.appbar_text_color || "#ffffff" }}
                 >
-                  SUR IMPORTACIÓN
+                  MaxiPet
                 </span>
               )}
             </Link>

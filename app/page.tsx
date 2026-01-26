@@ -10,7 +10,7 @@ export default async function Home() {
   const mostrarCombos = await getMostrarCombos()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-emerald-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
       <GlobalAppBar />
 
       <main>

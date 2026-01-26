@@ -55,11 +55,11 @@ export default function BannersCarousel() {
   }
 
   return (
-    <section className="py-8 bg-white">
+    <section className="py-8" style={{ background: 'linear-gradient(135deg, #f0f9ff, #dbeafe, #f0f9ff)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative group">
           {/* Contenedor del carrusel */}
-          <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(84,186,150,0.5)] aspect-[16/6] md:aspect-[21/6] border-8 border-[#54ba96]">
+          <div className="relative overflow-hidden rounded-2xl aspect-[16/6] md:aspect-[21/6] border-8" style={{ boxShadow: '0 20px 60px rgba(0, 112, 187, 0.5)', borderColor: '#0070bb' }}>
             {/* Banners */}
             <div
               className="flex transition-transform duration-700 ease-in-out h-full"
@@ -112,9 +112,10 @@ export default function BannersCarousel() {
                   onClick={() => goToSlide(index)}
                   className={`transition-all duration-300 rounded-full ${
                     index === currentIndex
-                      ? "bg-[#54ba96] w-8 h-3"
+                      ? "w-8 h-3"
                       : "bg-gray-300 hover:bg-gray-400 w-3 h-3"
                   }`}
+                  style={index === currentIndex ? { backgroundColor: '#0070bb' } : {}}
                   aria-label={`Ir al banner ${index + 1}`}
                 />
               ))}

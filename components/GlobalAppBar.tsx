@@ -81,13 +81,13 @@ export default function GlobalAppBar() {
                     // Durante la carga inicial, usar tamaño seguro
                     <img
                       src="/LOGO2.png"
-                      alt="Sur Importación"
+                      alt="MaxiPet"
                       className="h-12 sm:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : isMobile ? (
                     <img
                       src="/LOGO2.png"
-                      alt="Sur Importación"
+                      alt="MaxiPet"
                       className="h-24 sm:h-28 w-auto transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : configuracion?.logo_url ? (
@@ -104,7 +104,7 @@ export default function GlobalAppBar() {
                   ) : (
                     <img
                       src="/LOGO2.png"
-                      alt="Sur Importación"
+                      alt="MaxiPet"
                       className="lg:h-36 xl:h-40 w-auto transition-transform duration-300 group-hover:scale-105"
                     />
                   )}
@@ -144,7 +144,7 @@ export default function GlobalAppBar() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="hover:opacity-70 transition-colors duration-300 p-2 rounded-full text-white"
                 style={{
-                  backgroundColor: "#54ba96"
+                  backgroundColor: "#0070bb"
                 }}
                 aria-label="Abrir menú"
               >

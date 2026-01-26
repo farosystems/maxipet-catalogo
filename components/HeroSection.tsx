@@ -16,14 +16,14 @@ export default function HeroSection() {
       className="relative text-white pt-12 overflow-hidden h-[30vh] min-h-[250px] sm:h-[35vh] sm:min-h-[300px] flex items-center"
     >
       {/* Imagen de fondo */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/hero-family.jpg')"
+          backgroundImage: "url('/hero-family.webp')"
         }}
       >
         {/* Overlay mejorado para mayor calidad visual */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-emerald-900/50 to-blue-900/60"></div>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0, 112, 187, 0.7), rgba(0, 90, 141, 0.6), rgba(0, 112, 187, 0.7))' }}></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
       </div>
 
@@ -31,8 +31,8 @@ export default function HeroSection() {
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-4 h-4 bg-yellow-400 rounded-full animate-float"></div>
         <div className="absolute top-32 right-20 w-6 h-6 bg-blue-300 rounded-full animate-float delay-200"></div>
-        <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-green-400 rounded-full animate-float delay-500"></div>
-        <div className="absolute bottom-40 right-1/3 w-5 h-5 bg-emerald-400 rounded-full animate-float delay-700"></div>
+        <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-cyan-400 rounded-full animate-float delay-500"></div>
+        <div className="absolute bottom-40 right-1/3 w-5 h-5 bg-blue-400 rounded-full animate-float delay-700"></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 md:py-6">

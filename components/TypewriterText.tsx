@@ -31,7 +31,7 @@ export default function TypewriterText() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showCursor, setShowCursor] = useState(true)
 
-  const fullText = "SUR IMPORTACIÓN"
+  const fullText = "MaxiPet"
 
   useEffect(() => {
     const timeout = setTimeout(

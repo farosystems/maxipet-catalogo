@@ -503,7 +503,7 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
         <div className="mb-4 bg-gray-50 py-2 sm:py-8">
           <div className="text-center mb-3 sm:mb-12">
             <h2 className="text-xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">
-              ¿Por qué elegir SUR IMPORTACIÓN?
+              ¿Por qué elegir MaxiPet?
             </h2>
           </div>
 
