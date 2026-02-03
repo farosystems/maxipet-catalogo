@@ -17,16 +17,17 @@ export const metadata: Metadata = {
   icons: {
     icon: '/LOGO2.png',
   },
+  metadataBase: new URL('https://maxipet-frontend-mxp.vercel.app'),
   openGraph: {
     type: 'website',
     locale: 'es_AR',
-    url: 'https://www.mundocuota.com.ar',
+    url: '/',
     siteName: 'MaxiPet',
     title: 'MaxiPet - Electrodomésticos en Cuotas',
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
     images: [
       {
-        url: 'https://www.mundocuota.com.ar/LOGO2.png?v=5',
+        url: '/LOGO2.png',
         width: 400,
         height: 200,
         alt: 'MaxiPet - Electrodomésticos en Cuotas',
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MaxiPet - Electrodomésticos en Cuotas',
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
-    images: ['https://www.mundocuota.com.ar/LOGO2.png?v=5'],
+    images: ['/LOGO2.png'],
   },
 }
 
