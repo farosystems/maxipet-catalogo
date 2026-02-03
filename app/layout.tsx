@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/LOGO2.png',
   },
-  metadataBase: new URL('https://maxipet-frontend-mxp.vercel.app'),
+  metadataBase: new URL('https://maxipet-catalogo-zkz9.vercel.app'),
   openGraph: {
     type: 'website',
     locale: 'es_AR',
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
     images: [
       {
-        url: '/LOGO2.png',
+        url: '/LOGO2.png?v=2',
         width: 400,
         height: 200,
         alt: 'MaxiPet - Electrodomésticos en Cuotas',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MaxiPet - Electrodomésticos en Cuotas',
     description: 'Tu tienda de electrodomésticos de confianza con los mejores planes de financiación. Heladeras, lavarropas, aires acondicionados y más.',
-    images: ['/LOGO2.png'],
+    images: ['/LOGO2.png?v=2'],
   },
 }
 
