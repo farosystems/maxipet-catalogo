@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Heart, Tag } from "lucide-react"
+import { Heart, Tag, ShoppingCart, Check, Minus, Plus } from "lucide-react"
 import { Product } from "@/lib/products"
 import FinancingPlans from "./FinancingPlans"
 import { useShoppingList } from "@/hooks/use-shopping-list"
@@ -12,7 +12,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addItem, removeItem, isInList } = useShoppingList()
+  const { addItem, removeItem, isInList, quantities, setQuantity } = useShoppingList()
   const productCategory = product.categoria?.descripcion || product.category || 'Sin categoría'
   const productBrand = product.marca?.descripcion || product.brand || 'Sin marca'
   const productPrice = product.precio || product.price || 0
@@ -55,7 +55,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     `/${productCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/${product.id}` :
     `/varios/${product.id}`
 
-  const isInFavorites = isInList(product.id)
+  const isInFavorites = isInList(Number(product.id))
   const hasStock = product.tiene_stock === true // Solo true permite agregar, undefined/null/false no permiten
   
   // Debug: log del stock
@@ -67,7 +67,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation()
 
     if (isInFavorites) {
-      removeItem(product.id)
+      removeItem(Number(product.id))
     } else {
       addItem(product)
     }
@@ -206,6 +206,61 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Planes de Financiación - Versión simplificada */}
           <FinancingPlans productoId={product.id} precio={hasOferta ? precioOferta : productPrice} />
+
+          {/* Botón Agregar a lista o selector de cantidad */}
+          {!isInFavorites ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                addItem(product)
+              }}
+              disabled={!hasStock}
+              className={`w-full mt-2 py-1.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+                !hasStock
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'text-white hover:opacity-90 shadow-md'
+              }`}
+              style={hasStock ? { backgroundColor: '#0070bb' } : {}}
+            >
+              {!hasStock ? (
+                <>Sin Stock</>
+              ) : (
+                <><ShoppingCart className="w-4 h-4" /> Agregar a lista</>
+              )}
+            </button>
+          ) : (
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const currentQty = quantities[product.id] || 1
+                  if (currentQty > 1) {
+                    setQuantity(product.id, currentQty - 1)
+                  }
+                }}
+                className="w-8 h-8 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <div className="flex-1 text-center font-semibold text-sm bg-green-100 text-green-700 py-1.5 rounded-xl">
+                <Check className="w-4 h-4 inline mr-1" />
+                {quantities[product.id] || 1} en lista
+              </div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const currentQty = quantities[product.id] || 1
+                  setQuantity(product.id, currentQty + 1)
+                }}
+                className="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Link>

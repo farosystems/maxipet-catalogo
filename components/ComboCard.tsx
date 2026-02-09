@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Heart, Clock } from "lucide-react"
+import { Heart, Clock, ShoppingCart, Check } from "lucide-react"
 import { Combo } from "@/lib/products"
 import { useShoppingList } from "@/hooks/use-shopping-list"
 import { isComboValid } from "@/lib/supabase-products"
@@ -134,6 +134,36 @@ export default function ComboCard({ combo }: ComboCardProps) {
               Válido hasta: {new Date(combo.fecha_vigencia_fin).toLocaleDateString()}
             </div>
           )}
+
+          {/* Botón Agregar a lista */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (isInFavorites) {
+                removeItem(combo.id)
+              } else {
+                addItem(comboAsProduct)
+              }
+            }}
+            disabled={!isValid}
+            className={`w-full mt-2 py-1.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+              !isValid
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : isInFavorites
+                ? 'bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-700'
+                : 'text-white hover:opacity-90 shadow-md'
+            }`}
+            style={isValid && !isInFavorites ? { backgroundColor: '#0070bb' } : {}}
+          >
+            {!isValid ? (
+              <>No vigente</>
+            ) : isInFavorites ? (
+              <><Check className="w-4 h-4" /> En tu lista</>
+            ) : (
+              <><ShoppingCart className="w-4 h-4" /> Agregar a lista</>
+            )}
+          </button>
         </div>
       </div>
     </Link>
