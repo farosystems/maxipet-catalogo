@@ -199,7 +199,7 @@ export default function ProductsSection() {
             Nuestros Productos
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Descubre nuestra amplia gama de electrodomésticos con los mejores planes de financiación
+            Descubre nuestra amplia gama de alimento para perros y gatos con los mejores planes de financiación
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-500 mx-auto mt-4 rounded-full"></div>
         </div>

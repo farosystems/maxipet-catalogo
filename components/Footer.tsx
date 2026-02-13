@@ -56,11 +56,11 @@ export default function Footer() {
               )}
               <div>
                 <h3 className="text-xl font-bold">MaxiPet</h3>
-                <p className="text-blue-200 text-sm">Tu tienda de electrodomésticos de confianza</p>
+                <p className="text-blue-200 text-sm">Tu tienda de alimento para perros y gatos de confianza</p>
               </div>
             </div>
             <p className="text-blue-200 text-sm leading-relaxed">
-              Especialistas en electrodomésticos con los mejores planes de financiación.
+              Especialistas en alimento para perros y gatos con los mejores planes de financiación.
               Hacemos que tus sueños sean realidad con cuotas accesibles.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-blue-200 text-sm text-center md:text-left">
               © 2025 MaxiPet. Todos los derechos reservados.
-              Especialistas en electrodomésticos con financiación.
+              Especialistas en alimento para perros y gatos con financiación.
             </p>
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-blue-200 hover:text-white transition-colors duration-300 text-sm">

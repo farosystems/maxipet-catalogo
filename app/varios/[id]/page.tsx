@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: ProductoVariosPageProps): Pro
     return {
       title,
       description,
-      keywords: `${product.descripcion}, ${product.categoria?.descripcion}, ${product.marca?.descripcion}, electrodomésticos, cuotas, financiación`,
+      keywords: `${product.descripcion}, ${product.categoria?.descripcion}, ${product.marca?.descripcion}, alimento para perros y gatos, mascotas, cuotas, financiación`,
       openGraph: {
         type: 'website',
         locale: 'es_AR',

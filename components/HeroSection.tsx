@@ -46,7 +46,7 @@ export default function HeroSection() {
           <p
             className={`text-sm md:text-base lg:text-lg mb-3 max-w-2xl mx-auto transition-all duration-1000 delay-500 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}
           >
-            Tu tienda de electrodomésticos de confianza con los mejores planes de financiación
+            Tu tienda de alimento para perros y gatos de confianza con los mejores planes de financiación
           </p>
         </div>
 
