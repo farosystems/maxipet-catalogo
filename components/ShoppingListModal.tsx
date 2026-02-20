@@ -54,9 +54,9 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
       const plan = selectedPlans[item.id]
       if (plan) {
         if (plan.cuotas === 1) {
-          productLine += `\n   💳 Forma de pago: Contado`
+          productLine += `\n   💳 Forma de pago: Contado (${plan.nombre})`
         } else {
-          productLine += `\n   💳 Forma de pago: ${plan.cuotas} cuotas de $${plan.cuotaMensual.toLocaleString('es-AR')}`
+          productLine += `\n   💳 Forma de pago: ${plan.nombre} — ${plan.cuotas} cuotas de $${plan.cuotaMensual.toLocaleString('es-AR')}`
         }
       }
 
@@ -125,7 +125,7 @@ export default function ShoppingListModal({ isOpen, onClose }: ShoppingListModal
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Mi Lista de Compra</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Mis Pedidos</h2>
             <p className="text-gray-600">{itemCount} producto{itemCount !== 1 ? 's' : ''} seleccionado{itemCount !== 1 ? 's' : ''}</p>
           </div>
           <button

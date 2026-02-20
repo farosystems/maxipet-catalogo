@@ -416,6 +416,7 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
                 productoId={product.id.toString()}
                 precio={hasOferta ? precioOferta : product.precio}
                 hasStock={product.tiene_stock}
+                product={product}
               />
             </div>
 

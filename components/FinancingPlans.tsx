@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PlanFinanciacion } from '@/lib/products'
+import { PlanFinanciacion, Product } from '@/lib/products'
 import { getPlanesProducto, calcularCuota, formatearPrecio, getTipoPlanesProducto, calcularAnticipo } from '@/lib/supabase-products'
 import { useShoppingList } from '@/hooks/use-shopping-list'
 
@@ -9,13 +9,14 @@ interface FinancingPlansProps {
   productoId: string
   precio: number
   showDebug?: boolean
+  product?: Product
 }
 
-export default function FinancingPlans({ productoId, precio, showDebug = false }: FinancingPlansProps) {
+export default function FinancingPlans({ productoId, precio, showDebug = false, product }: FinancingPlansProps) {
   const [planes, setPlanes] = useState<PlanFinanciacion[]>([])
   const [loading, setLoading] = useState(true)
   const [tipoPlanes, setTipoPlanes] = useState<'especiales' | 'default' | 'todos' | 'ninguno'>('ninguno')
-  const { isInList, selectedPlans, setSelectedPlan } = useShoppingList()
+  const { isInList, selectedPlans, setSelectedPlan, addItem } = useShoppingList()
 
   const inList = isInList(Number(productoId))
   const planActual = selectedPlans[productoId]
@@ -92,7 +93,10 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
   const colores = ['bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-emerald-100 text-emerald-800', 'bg-orange-100 text-orange-800']
 
   const handlePlanClick = (plan: PlanFinanciacion, calculo: { cuota_mensual: number }) => {
-    if (!inList) return
+    // Si el producto no está en la lista, agregarlo primero
+    if (!inList && product) {
+      addItem(product)
+    }
     // Si ya está seleccionado este plan, deseleccionar
     if (planActual?.planId === plan.id) {
       setSelectedPlan(productoId, null)
@@ -114,9 +118,7 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
         </div>
       )}
 
-      {inList && (
-        <p className="text-xs text-blue-600 font-semibold mb-1">Selecciona el plan de pago:</p>
-      )}
+      <p className="text-xs text-blue-600 font-semibold mb-1">Selecciona el plan de pago:</p>
 
       {planesFinales.map((plan, index) => {
         const calculo = calcularCuota(precio, plan)
@@ -140,61 +142,44 @@ export default function FinancingPlans({ productoId, precio, showDebug = false }
         const baseClass = esContado ? 'bg-red-100 text-red-800' : colores[index % colores.length]
         const selectedClass = 'ring-2 ring-blue-500 bg-blue-200 text-blue-900'
 
-        const content = (
-          <div className="text-center leading-tight">
-            {esContado ? (
-              <>
-                <div className="whitespace-nowrap text-lg">
-                  Contado {descuentoContado}% OFF!
-                </div>
-                <div className="text-base">
-                  ${formatearPrecio(precioContado)}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="whitespace-nowrap text-base">
-                  {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas'} de
-                </div>
-                <div className="text-sm">
-                  ${formatearPrecio(calculo.cuota_mensual)}
-                </div>
-                {anticipo > 0 && (
-                  <div className="whitespace-nowrap text-xs">
-                    Anticipo: ${formatearPrecio(anticipo)}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )
-
-        // Si el producto está en la lista, los planes son botones seleccionables
-        if (inList) {
-          return (
-            <button
-              key={`${productoId}-${plan.id}`}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handlePlanClick(plan, calculo) }}
-              className={`py-2 px-2 sm:px-4 rounded-lg font-bold text-xs sm:text-sm w-full transition-all duration-200 ${
-                isSelected ? selectedClass : baseClass
-              } hover:opacity-80 cursor-pointer`}
-            >
-              {content}
-              {isSelected && (
-                <div className="text-xs mt-1 font-semibold text-blue-700">✓ Seleccionado</div>
-              )}
-            </button>
-          )
-        }
-
-        // Si no está en la lista, solo se muestra como badge estático (como antes)
         return (
-          <div
+          <button
             key={`${productoId}-${plan.id}`}
-            className={`py-2 px-2 sm:px-4 rounded-lg text-center font-bold text-xs sm:text-sm w-full ${baseClass}`}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handlePlanClick(plan, calculo) }}
+            className={`py-2 px-2 sm:px-4 rounded-lg font-bold text-xs sm:text-sm w-full transition-all duration-200 ${
+              isSelected ? selectedClass : baseClass
+            } hover:opacity-80 cursor-pointer`}
           >
-            {content}
-          </div>
+            <div className="text-center leading-tight">
+              {esContado ? (
+                <>
+                  <div className="whitespace-nowrap text-lg">
+                    Contado {descuentoContado}% OFF!
+                  </div>
+                  <div className="text-base">
+                    ${formatearPrecio(precioContado)}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="whitespace-nowrap text-base">
+                    {plan.cuotas} {sinInteres ? 'Cuotas Sin interés' : 'cuotas'} de
+                  </div>
+                  <div className="text-sm">
+                    ${formatearPrecio(calculo.cuota_mensual)}
+                  </div>
+                  {anticipo > 0 && (
+                    <div className="whitespace-nowrap text-xs">
+                      Anticipo: ${formatearPrecio(anticipo)}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            {isSelected && (
+              <div className="text-xs mt-1 font-semibold text-blue-700">✓ Seleccionado</div>
+            )}
+          </button>
         )
       })}
     </div>

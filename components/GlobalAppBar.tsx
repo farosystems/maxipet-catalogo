@@ -203,10 +203,10 @@ export default function GlobalAppBar() {
                 onClick={() => setIsShoppingListOpen(true)}
                 className="hover:opacity-70 transition-colors duration-300 font-bold text-lg flex items-center gap-2"
                 style={{ color: getTextColor() }}
-                title="Mi Lista de Compra"
+                title="Mis Pedidos"
               >
                 <ShoppingBag size={20} />
-                Mi Lista ({itemCount})
+                Mis Pedidos ({itemCount})
               </button>
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function GlobalAppBar() {
                 style={{ color: getTextColor() }}
               >
                 <ShoppingBag className="mr-3" size={20} />
-                Mi Lista ({itemCount})
+                Mis Pedidos ({itemCount})
               </button>
 
               {/* Categorías móvil */}

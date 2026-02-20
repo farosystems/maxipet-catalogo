@@ -205,7 +205,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Planes de Financiación - Versión simplificada */}
-          <FinancingPlans productoId={product.id} precio={hasOferta ? precioOferta : productPrice} />
+          <FinancingPlans productoId={product.id} precio={hasOferta ? precioOferta : productPrice} product={product} />
 
           {/* Botón Agregar a lista o selector de cantidad */}
           {!isInFavorites ? (
