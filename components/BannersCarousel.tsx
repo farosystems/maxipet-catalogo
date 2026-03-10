@@ -68,12 +68,12 @@ export default function BannersCarousel() {
               {banners.map((banner, index) => (
                 <div
                   key={index}
-                  className="min-w-full max-w-full flex-shrink-0 h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]"
+                  className="min-w-full max-w-full flex-shrink-0"
                 >
                   <img
                     src={banner}
                     alt={`Banner ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain"
                   />
                 </div>
               ))}
