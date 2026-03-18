@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Menu, ShoppingBag, X, Home, Star } from "lucide-react"
 import ProductSearch from "./ProductSearch"
-import CategoriesDropdown from "./CategoriesDropdown"
+import FiltersDropdown from "./FiltersDropdown"
 import ShoppingListModal from "./ShoppingListModal"
 import { useState, useEffect } from "react"
 import { useShoppingList } from "@/hooks/use-shopping-list"
@@ -166,11 +166,11 @@ export default function GlobalAppBar() {
                 style={{ color: getTextColor() }}
               >
                 <Menu className="mr-2 size-6" />
-                Categorías
+                Filtros
               </button>
-              
+
               <div className="absolute top-full left-0 pt-2">
-                <CategoriesDropdown 
+                <FiltersDropdown
                   isOpen={isCategoriesOpen}
                   onClose={() => setIsCategoriesOpen(false)}
                   isMobile={false}
@@ -251,7 +251,7 @@ export default function GlobalAppBar() {
                 Mis Pedidos ({itemCount})
               </button>
 
-              {/* Categorías móvil */}
+              {/* Filtros móvil */}
               <button
                 onClick={() => {
                   setIsMobileCategoriesOpen(true)
@@ -262,7 +262,7 @@ export default function GlobalAppBar() {
               >
                 <div className="flex items-center">
                   <Menu className="mr-3" size={20} />
-                  Categorías
+                  Filtros
                 </div>
               </button>
             </div>
@@ -276,8 +276,8 @@ export default function GlobalAppBar() {
         onClose={() => setIsShoppingListOpen(false)}
       />
       
-      {/* Categories Dropdown - Mobile Full Screen */}
-      <CategoriesDropdown 
+      {/* Filters Dropdown - Mobile Full Screen */}
+      <FiltersDropdown
         isOpen={isMobileCategoriesOpen}
         onClose={() => setIsMobileCategoriesOpen(false)}
         isMobile={true}

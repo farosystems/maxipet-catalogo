@@ -92,6 +92,8 @@ export interface Product {
   fk_id_marca: number
   destacado: boolean
   tiene_stock: boolean
+  kilos?: number
+  tamaño?: string
   // Nuevos campos para configuración de planes
   aplicar_todos_planes?: boolean
   aplicar_planes_categoria?: boolean
