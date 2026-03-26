@@ -215,14 +215,13 @@ export default function GlobalAppBar() {
 
         {/* Menú móvil */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-sm border-t border-gray-200">
+          <div className="lg:hidden bg-red-600 border-t border-red-700">
             <div className="px-4 py-4 space-y-1">
               {/* Navegación principal */}
               <Link
                 href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-medium"
-                style={{ color: getTextColor() }}
+                className="flex items-center px-4 py-3 hover:bg-red-700 rounded-lg transition-colors font-medium text-white"
               >
                 <Home className="mr-3" size={20} />
                 Inicio
@@ -231,8 +230,7 @@ export default function GlobalAppBar() {
               <Link
                 href="/#destacados"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-medium"
-                style={{ color: getTextColor() }}
+                className="flex items-center px-4 py-3 hover:bg-red-700 rounded-lg transition-colors font-medium text-white"
               >
                 <Star className="mr-3" size={20} />
                 Destacados
@@ -244,8 +242,7 @@ export default function GlobalAppBar() {
                   setIsShoppingListOpen(true)
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-medium"
-                style={{ color: getTextColor() }}
+                className="flex items-center px-4 py-3 hover:bg-red-700 rounded-lg transition-colors font-medium text-white w-full"
               >
                 <ShoppingBag className="mr-3" size={20} />
                 Mis Pedidos ({itemCount})
@@ -257,8 +254,7 @@ export default function GlobalAppBar() {
                   setIsMobileCategoriesOpen(true)
                   setIsMobileMenuOpen(false)
                 }}
-                className="flex items-center w-full px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-medium"
-                style={{ color: getTextColor() }}
+                className="flex items-center w-full px-4 py-3 hover:bg-red-700 rounded-lg transition-colors font-medium text-white"
               >
                 <div className="flex items-center">
                   <Menu className="mr-3" size={20} />
