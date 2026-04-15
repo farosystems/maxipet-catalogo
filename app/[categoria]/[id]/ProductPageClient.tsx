@@ -163,13 +163,20 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
                 Volver a {categoria?.descripcion}
               </button>
               
-              {/* Badge Destacado */}
-              {product.destacado && (
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
-                  <Star className="mr-2" size={14} />
-                  Destacado
-                </div>
-              )}
+              {/* Badges: BONUS y Destacado pueden coexistir */}
+              <div className="flex items-center gap-2">
+                {product.bonus && (
+                  <div className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                    BONUS
+                  </div>
+                )}
+                {product.destacado && !product.bonus && (
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
+                    <Star className="mr-2" size={14} />
+                    Destacado
+                  </div>
+                )}
+              </div>
             </div>
             
             <ProductImageGallery 

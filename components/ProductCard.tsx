@@ -114,18 +114,25 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Badge Oferta/Promoción - Esquina superior derecha (prioridad sobre destacado) */}
-          {hasDiscount && hasStock && (
-            <div className="absolute top-1.5 right-1.5 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
-              <Tag className="w-3 h-3" />
-              -{discountPercentage}%
-            </div>
-          )}
-
-          {/* Badge Destacado - Esquina superior derecha (solo si hay stock y no hay oferta/promo) */}
-          {product.destacado && hasStock && !hasDiscount && (
-            <div className="absolute top-1.5 right-1.5 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full text-xs font-semibold shadow-lg">
-              Destacado
+          {/* Badges esquina superior derecha: Oferta/Promo + BONUS pueden coexistir */}
+          {hasStock && (hasDiscount || product.bonus || product.destacado) && (
+            <div className="absolute top-1.5 right-1.5 flex flex-row items-center gap-1">
+              {hasDiscount && (
+                <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                  <Tag className="w-3 h-3" />
+                  -{discountPercentage}%
+                </div>
+              )}
+              {product.bonus && (
+                <div className="bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                  BONUS
+                </div>
+              )}
+              {product.destacado && !product.bonus && !hasDiscount && (
+                <div className="bg-yellow-400 text-black px-1.5 py-0.5 rounded-full text-xs font-semibold shadow-lg">
+                  Destacado
+                </div>
+              )}
             </div>
           )}
         </div>

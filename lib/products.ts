@@ -91,6 +91,7 @@ export interface Product {
   fk_id_categoria: number
   fk_id_marca: number
   destacado: boolean
+  bonus: boolean
   tiene_stock: boolean
   kilos?: number
   tamaño?: string
