@@ -78,8 +78,12 @@ export default function ProductPageClient({ params }: ProductPageClientProps) {
 
     if (categoria) {
       loadProduct()
+    } else if (categories.length > 0) {
+      // Las categorías ya cargaron pero ninguna matchea este slug → URL inválida
+      setError('Categoría no encontrada')
+      setLoading(false)
     }
-  }, [resolvedParams.id, categoria])
+  }, [resolvedParams.id, categoria, categories.length])
 
   const handleBackToCategory = () => {
     router.push(`/${resolvedParams.categoria}`)

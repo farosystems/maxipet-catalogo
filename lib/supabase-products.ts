@@ -608,6 +608,8 @@ export async function getProductsByBrand(brandId: number): Promise<Product[]> {
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
+  if (!id || !/^\d+$/.test(id)) return null
+
   try {
     const { data, error } = await supabase
       .from('productos')

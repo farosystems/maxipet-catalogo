@@ -377,7 +377,7 @@ export default function FiltersDropdown({ isOpen, onClose, isMobile: isMobilePro
                 {tamañosDisponibles.map((tamaño) => (
                   <Link
                     key={tamaño}
-                    href={`/tamaño/${tamaño.toLowerCase().replace(' ', '-')}`}
+                    href={`/tamano/${tamaño.toLowerCase().replace(' ', '-')}`}
                     onClick={onClose}
                     className="flex items-center justify-between p-4 hover:bg-blue-50 rounded-xl transition-colors group border border-gray-200 hover:border-blue-300"
                   >
@@ -530,7 +530,7 @@ export default function FiltersDropdown({ isOpen, onClose, isMobile: isMobilePro
                 {tamañosDisponibles.map((tamaño) => (
                   <Link
                     key={tamaño}
-                    href={`/tamaño/${tamaño.toLowerCase().replace(' ', '-')}`}
+                    href={`/tamano/${tamaño.toLowerCase().replace(' ', '-')}`}
                     onClick={onClose}
                     className="flex items-center justify-between px-3 py-1.5 hover:bg-blue-50 rounded-lg transition-colors group border border-transparent hover:border-blue-200"
                   >
