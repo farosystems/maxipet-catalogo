@@ -169,7 +169,7 @@ export default function FiltersDropdown({ isOpen, onClose, isMobile: isMobilePro
   }
 
   const tamañosDisponibles = ['Pequeño', 'Mediano', 'Grande', 'Extra Grande']
-  const kilosDisponibles = ['1kg', '3kg', '5kg', '10kg', '15kg', '20kg']
+  const kilosDisponibles = ['1kg', '1.5kg', '2kg', '3kg', '5kg', '10kg', '12kg', '15kg', '20kg']
 
   // Mobile modal
   if (isReallyMobile && isClient) {
